@@ -17,8 +17,8 @@
 package realworld.grid;
 
 import com.github.bucket4j.Bucket;
+import com.github.bucket4j.BucketBuilder;
 import com.github.bucket4j.BucketState;
-import com.github.bucket4j.Buckets;
 import com.tangosol.net.CacheFactory;
 import com.tangosol.net.NamedCache;
 import org.junit.AfterClass;
@@ -28,6 +28,7 @@ import org.littlegrid.ClusterMemberGroup;
 import org.littlegrid.ClusterMemberGroupUtils;
 import realworld.ConsumptionScenario;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
@@ -54,9 +55,9 @@ public class CoherenceTest {
 
     @Test
     public void test15Seconds() throws Exception {
-        Bucket bucket = Buckets.withNanoTimePrecision()
-                .withLimitedBandwidth(1_000l, TimeUnit.MINUTES, 1, 0)
-                .withLimitedBandwidth(200l, TimeUnit.SECONDS, 10, 0)
+        Bucket bucket = BucketBuilder.forNanosecondPrecision()
+                .withLimitedBandwidth(1_000, 0, Duration.ofMinutes(1))
+                .withLimitedBandwidth(200, 0, Duration.ofSeconds(10))
                 .buildCoherence(cache, KEY);
 
         ConsumptionScenario scenario = new ConsumptionScenario(4, TimeUnit.SECONDS.toNanos(15), bucket);
