@@ -70,7 +70,7 @@ public class IgniteTest {
         String msg = "Actual rate " + actualRate + " is greater then permitted rate " + permittedRate;
         assertTrue(msg, actualRate <= permittedRate);
 
-        BucketState snapshot = bucket.createSnapshot();
+        BucketState snapshot = bucket.getStateSnapshot();
         long available = snapshot.getAvailableTokens(bucket.getConfiguration().getBandwidths());
         long rest = bucket.consumeAsMuchAsPossible();
         assertTrue(rest >= available);

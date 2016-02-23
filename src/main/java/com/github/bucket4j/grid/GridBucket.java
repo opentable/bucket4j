@@ -72,7 +72,7 @@ public class GridBucket extends AbstractBucket {
     }
 
     @Override
-    public BucketState createSnapshot() {
+    public BucketState getStateSnapshot() {
         return gridProxy.execute(new CreateSnapshotCommand());
     }
 

@@ -15,6 +15,8 @@
  */
 package com.github.bucket4j;
 
+import java.time.Duration;
+
 import static com.github.bucket4j.BucketExceptions.nonPositiveNanosToWait;
 import static com.github.bucket4j.BucketExceptions.nonPositiveTokensToConsume;
 
@@ -31,7 +33,7 @@ public abstract class AbstractBucket implements Bucket {
 
     protected abstract boolean tryConsumeImpl(long tokensToConsume);
 
-    protected abstract boolean consumeOrAwaitImpl(long tokensToConsume, long waitIfBusyNanos) throws InterruptedException;
+    protected abstract long consumeOrAwaitImpl(long tokensToConsume, long waitIfBusyNanos) throws InterruptedException;
 
     @Override
     public boolean tryConsumeSingleToken() {
@@ -47,34 +49,36 @@ public abstract class AbstractBucket implements Bucket {
     }
 
     @Override
-    public void consumeSingleToken() throws InterruptedException {
-        consume(1);
+    public long consumeSingleToken() throws InterruptedException {
+        return consume(1);
     }
 
     @Override
-    public void consume(long tokensToConsume) throws InterruptedException {
+    public long consume(long tokensToConsume) throws InterruptedException {
         if (tokensToConsume <= 0) {
             throw nonPositiveTokensToConsume(tokensToConsume);
         }
-        consumeOrAwaitImpl(tokensToConsume, UNSPECIFIED_WAITING_LIMIT);
+        return consumeOrAwaitImpl(tokensToConsume, UNSPECIFIED_WAITING_LIMIT);
     }
 
     @Override
-    public boolean tryConsumeSingleToken(long maxWaitTime) throws InterruptedException {
-        return tryConsume(1, maxWaitTime);
+    public boolean tryConsumeSingleToken(Duration maxWaiting) throws InterruptedException {
+        return tryConsume(1, maxWaiting);
     }
 
     @Override
-    public boolean tryConsume(long tokensToConsume, long maxWaitTime) throws InterruptedException {
+    public boolean tryConsume(long tokensToConsume, Duration maxWaiting) throws InterruptedException {
+        long maxWaitNanos = maxWaiting.toNanos();
         if (tokensToConsume <= 0) {
             throw nonPositiveTokensToConsume(tokensToConsume);
         }
 
-        if (maxWaitTime <= 0) {
-            throw nonPositiveNanosToWait(maxWaitTime);
+        if (maxWaitNanos <= 0) {
+            throw nonPositiveNanosToWait(maxWaitNanos);
         }
 
-        return consumeOrAwaitImpl(tokensToConsume, maxWaitTime);
+        long waitedNanos = consumeOrAwaitImpl(tokensToConsume, maxWaitNanos);
+        return waitedNanos >= 0;
     }
 
     @Override

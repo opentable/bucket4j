@@ -112,9 +112,11 @@ class BucketSpecification extends Specification {
             }
         where:
             n | requiredSleep | toConsume | builder
-            1 |      10       |     1     | BucketBuilder.forCustomTimePrecision(new TimeMeterMock(0)).withLimitedBandwidth(10, 0, Duration.ofNanos(100))
-            2 |       0       |     1     | BucketBuilder.forCustomTimePrecision(new TimeMeterMock(0)).withLimitedBandwidth(10, 1, Duration.ofNanos(100))
-            3 |       0       |  1000     | BucketBuilder.forCustomTimePrecision(new TimeMeterMock(0)).withLimitedBandwidth(10, 1, Duration.ofNanos(100))
+            1 |        10     |     1     | BucketBuilder.forCustomTimePrecision(new TimeMeterMock(0)).withLimitedBandwidth(10, 0, Duration.ofNanos(100))
+            2 |         0     |     1     | BucketBuilder.forCustomTimePrecision(new TimeMeterMock(0)).withLimitedBandwidth(10, 1, Duration.ofNanos(100))
+            3 |         0     |  1000     | BucketBuilder.forCustomTimePrecision(new TimeMeterMock(0)).withLimitedBandwidth(10, 1, Duration.ofNanos(100))
+            4 |   1000000     |     1     | BucketBuilder.forCustomTimePrecision(new TimeMeterMock(0)).withLimitedBandwidth( 1, 0, Duration.ofMillis(1))
+            5 |    500000     |     2     | BucketBuilder.forCustomTimePrecision(new TimeMeterMock(0)).withLimitedBandwidth( 2, 1, Duration.ofMillis(1))
     }
 
     @Timeout(value = 2, unit = TimeUnit.SECONDS)
