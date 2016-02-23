@@ -38,7 +38,7 @@ public class TryConsumeCommand implements GridCommand<Boolean> {
         state.refill(bandwidths, currentTimeNanos);
         long availableToConsume = state.getAvailableTokens(bandwidths);
         if (tokensToConsume <= availableToConsume) {
-            state.consume(bandwidths, tokensToConsume);
+            state.consume(tokensToConsume);
             bucketStateModified = true;
             return true;
         } else {

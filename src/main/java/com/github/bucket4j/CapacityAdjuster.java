@@ -30,18 +30,18 @@ public interface CapacityAdjuster extends Serializable {
      *
      * @return
      */
-    long getCapacity(long currentTime);
+    double getCapacity(long currentTime);
 
     class ImmutableCapacity implements CapacityAdjuster {
 
-        private final long value;
+        private final double value;
 
         public ImmutableCapacity(long value) {
             this.value = value;
         }
 
         @Override
-        public long getCapacity(long currentTime) {
+        public double getCapacity(long currentTime) {
             return value;
         }
 

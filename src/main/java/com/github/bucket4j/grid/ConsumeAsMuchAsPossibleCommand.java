@@ -41,7 +41,7 @@ public class ConsumeAsMuchAsPossibleCommand implements GridCommand<Long> {
         if (toConsume <= 0) {
             return 0l;
         }
-        state.consume(bandwidths, toConsume);
+        state.consume(toConsume);
         bucketStateModified = true;
         return toConsume;
     }

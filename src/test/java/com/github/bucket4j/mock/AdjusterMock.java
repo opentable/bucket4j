@@ -27,7 +27,7 @@ public class AdjusterMock implements CapacityAdjuster {
     }
 
     @Override
-    public long getCapacity(long currentTime) {
+    public double getCapacity(long currentTime) {
         return capacity;
     }
 

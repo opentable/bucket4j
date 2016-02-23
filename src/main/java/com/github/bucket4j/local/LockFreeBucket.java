@@ -49,7 +49,7 @@ public class LockFreeBucket extends AbstractBucket {
             if (toConsume == 0) {
                 return 0;
             }
-            newState.consume(bandwidths, toConsume);
+            newState.consume(toConsume);
             if (stateReference.compareAndSet(previousState, newState)) {
                 return toConsume;
             } else {
@@ -72,7 +72,7 @@ public class LockFreeBucket extends AbstractBucket {
             if (tokensToConsume > availableToConsume) {
                 return false;
             }
-            newState.consume(bandwidths, tokensToConsume);
+            newState.consume(tokensToConsume);
             if (stateReference.compareAndSet(previousState, newState)) {
                 return true;
             } else {
@@ -114,7 +114,7 @@ public class LockFreeBucket extends AbstractBucket {
                 return false;
             }
             if (nanosToCloseDeficit == 0) {
-                newState.consume(bandwidths, tokensToConsume);
+                newState.consume(tokensToConsume);
                 if (stateReference.compareAndSet(previousState, newState)) {
                     return true;
                 } else {

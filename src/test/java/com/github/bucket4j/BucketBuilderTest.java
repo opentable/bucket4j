@@ -24,7 +24,7 @@ import static com.github.bucket4j.TimeMeter.SYSTEM_MILLISECONDS;
 import static com.github.bucket4j.TimeMeter.SYSTEM_NANOTIME;
 import static org.junit.Assert.assertEquals;
 
-public class BucketsTest {
+public class BucketBuilderTest {
 
     @Test
     public void testWithNanoTimePrecision() throws Exception {

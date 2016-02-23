@@ -38,7 +38,7 @@ public class ConsumeOrCalculateTimeToCloseDeficitCommand implements GridCommand<
         state.refill(bandwidths, currentTimeNanos);
         long timeToCloseDeficit = state.delayNanosAfterWillBePossibleToConsume(bandwidths, currentTimeNanos, tokensToConsume);
         if (timeToCloseDeficit == 0) {
-            state.consume(bandwidths, tokensToConsume);
+            state.consume(tokensToConsume);
             bucketStateModified = true;
         }
         return timeToCloseDeficit;
