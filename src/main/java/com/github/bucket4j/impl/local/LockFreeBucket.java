@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.github.bucket4j.local;
+package com.github.bucket4j.impl.local;
 
 
-import com.github.bucket4j.AbstractBucket;
-import com.github.bucket4j.Bandwidth;
-import com.github.bucket4j.BucketConfiguration;
-import com.github.bucket4j.BucketState;
+import com.github.bucket4j.impl.AbstractBucket;
+import com.github.bucket4j.impl.Bandwidth;
+import com.github.bucket4j.impl.BucketConfiguration;
+import com.github.bucket4j.impl.BucketState;
 
 import java.util.concurrent.atomic.AtomicReference;
 

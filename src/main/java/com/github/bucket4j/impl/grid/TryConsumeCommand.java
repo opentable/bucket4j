@@ -14,34 +14,36 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.grid;
+package com.github.bucket4j.impl.grid;
 
-import com.github.bucket4j.Bandwidth;
-import com.github.bucket4j.BucketConfiguration;
-import com.github.bucket4j.BucketState;
+import com.github.bucket4j.impl.Bandwidth;
+import com.github.bucket4j.impl.BucketConfiguration;
+import com.github.bucket4j.impl.BucketState;
 
-public class ConsumeOrCalculateTimeToCloseDeficitCommand implements GridCommand<Long> {
+public class TryConsumeCommand implements GridCommand<Boolean> {
 
     private long tokensToConsume;
     private boolean bucketStateModified;
 
-    public ConsumeOrCalculateTimeToCloseDeficitCommand(long tokensToConsume) {
+    public TryConsumeCommand(long tokensToConsume) {
         this.tokensToConsume = tokensToConsume;
     }
 
     @Override
-    public Long execute(GridBucketState gridState) {
+    public Boolean execute(GridBucketState gridState) {
         BucketConfiguration configuration = gridState.getBucketConfiguration();
         BucketState state = gridState.getBucketState();
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
         Bandwidth[] bandwidths = configuration.getBandwidths();
         state.refill(bandwidths, currentTimeNanos);
-        long timeToCloseDeficit = state.delayNanosAfterWillBePossibleToConsume(bandwidths, currentTimeNanos, tokensToConsume);
-        if (timeToCloseDeficit == 0) {
+        long availableToConsume = state.getAvailableTokens(bandwidths);
+        if (tokensToConsume <= availableToConsume) {
             state.consume(tokensToConsume);
             bucketStateModified = true;
+            return true;
+        } else {
+            return false;
         }
-        return timeToCloseDeficit;
     }
 
     @Override

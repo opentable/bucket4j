@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j;
+package com.github.bucket4j.impl;
 
 import java.io.Serializable;
 import java.util.Arrays;

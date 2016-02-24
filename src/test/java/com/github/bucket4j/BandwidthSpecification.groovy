@@ -16,6 +16,7 @@
 
 package com.github.bucket4j
 
+import com.github.bucket4j.impl.Bandwidth
 import com.github.bucket4j.mock.AdjusterMock
 import spock.lang.Specification
 import spock.lang.Unroll

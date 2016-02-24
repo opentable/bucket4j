@@ -16,52 +16,48 @@
 
 package com.github.bucket4j;
 
-import com.github.bucket4j.grid.GridBucket;
-import com.github.bucket4j.grid.GridBucketState;
-import com.github.bucket4j.grid.GridProxy;
-import com.github.bucket4j.grid.coherence.CoherenceProxy;
-import com.github.bucket4j.grid.hazelcast.HazelcastProxy;
-import com.github.bucket4j.grid.ignite.IgniteProxy;
-import com.github.bucket4j.local.LockFreeBucket;
+import com.github.bucket4j.impl.BandwidthDefinition;
+import com.github.bucket4j.impl.BucketBuilderImpl;
+import com.github.bucket4j.impl.BucketConfiguration;
+import com.github.bucket4j.impl.grid.GridBucket;
+import com.github.bucket4j.impl.grid.GridBucketState;
+import com.github.bucket4j.impl.grid.GridProxy;
+import com.github.bucket4j.impl.grid.coherence.CoherenceProxy;
+import com.github.bucket4j.impl.grid.hazelcast.HazelcastProxy;
+import com.github.bucket4j.impl.grid.ignite.IgniteProxy;
+import com.github.bucket4j.impl.local.LockFreeBucket;
 import com.hazelcast.core.IMap;
 import com.tangosol.net.NamedCache;
 import org.apache.ignite.IgniteCache;
 
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static com.github.bucket4j.BucketExceptions.nullTimeMetter;
 
 /**
  * A builder for buckets. Builder can be reused, i.e. one builder can create multiple buckets with similar configuration.
  *
- * @see com.github.bucket4j.local.LockFreeBucket
- * @see com.github.bucket4j.grid.GridBucket
+ * @see com.github.bucket4j.impl.local.LockFreeBucket
+ * @see com.github.bucket4j.impl.grid.GridBucket
  */
-public final class BucketBuilder {
-
-    private TimeMeter timeMeter = TimeMeter.SYSTEM_NANOTIME;
-    private List<BandwidthDefinition> bandwidths = new ArrayList<>(1);
-
-    /**
-     * Creates instance of {@link com.github.bucket4j.BucketBuilder} which will create buckets with {@link com.github.bucket4j.TimeMeter#SYSTEM_NANOTIME} as time meter.
-     *
-     * @return
-     */
-    public static BucketBuilder forNanosecondPrecision() {
-        return new BucketBuilder(TimeMeter.SYSTEM_NANOTIME);
-    }
+public interface BucketBuilder {
 
     /**
      * Creates instance of {@link com.github.bucket4j.BucketBuilder} which will create buckets with {@link com.github.bucket4j.TimeMeter#SYSTEM_MILLISECONDS} as time meter.
      *
      * @return
      */
-    public static BucketBuilder forMillisecondPrecision() {
-        return new BucketBuilder(TimeMeter.SYSTEM_MILLISECONDS);
+    static BucketBuilder forMillisecondPrecision() {
+        return new BucketBuilderImpl(TimeMeter.SYSTEM_MILLISECONDS);
+    }
+
+    /**
+     * Creates instance of {@link com.github.bucket4j.BucketBuilder} which will create buckets with {@link com.github.bucket4j.TimeMeter#SYSTEM_NANOTIME} as time meter.
+     *
+     * @return
+     */
+    static BucketBuilder forNanosecondPrecision() {
+        return new BucketBuilderImpl(TimeMeter.SYSTEM_NANOTIME);
     }
 
     /**
@@ -71,88 +67,61 @@ public final class BucketBuilder {
      *
      * @return
      */
-    public static BucketBuilder forCustomTimePrecision(TimeMeter customTimeMeter) {
-        return new BucketBuilder(customTimeMeter);
+    static BucketBuilder forCustomTimePrecision(TimeMeter customTimeMeter) {
+        return new BucketBuilderImpl(customTimeMeter);
     }
 
     /**
-     * Creates a builder for buckets
+     * Constructs an instance of {@link com.github.bucket4j.impl.local.LockFreeBucket}
      *
-     * @param timeMeter object which will measure time.
+     * @return an instance of {@link com.github.bucket4j.impl.local.LockFreeBucket}
      */
-    public BucketBuilder(TimeMeter timeMeter) {
-        if (timeMeter == null) {
-            throw nullTimeMetter();
-        }
-        this.timeMeter = timeMeter;
-    }
+    Bucket build();
 
     /**
-     * Constructs an instance of {@link com.github.bucket4j.local.LockFreeBucket}
-     *
-     * @return an instance of {@link com.github.bucket4j.local.LockFreeBucket}
-     */
-    public Bucket build() {
-        BucketConfiguration configuration = createConfiguration();
-        return new LockFreeBucket(configuration);
-    }
-
-    /**
-     * Constructs an instance of {@link com.github.bucket4j.grid.GridBucket} which responsible to limit rate inside Hazelcast cluster.
+     * Constructs an instance of {@link com.github.bucket4j.impl.grid.GridBucket} which responsible to limit rate inside Hazelcast cluster.
      *
      * @param imap distributed map which will hold bucket inside cluster.
      *             Feel free to store inside single {@code imap} as mush buckets as you need.
      * @param key  for storing bucket inside {@code imap}.
      *             If you plan to store multiple buckets inside single {@code imap}, then each bucket should has own unique {@code key}.
      *
-     * @see com.github.bucket4j.grid.hazelcast.HazelcastProxy
+     * @see com.github.bucket4j.impl.grid.hazelcast.HazelcastProxy
      */
-    public Bucket buildHazelcast(IMap<Object, GridBucketState> imap, Serializable key) {
-        BucketConfiguration configuration = createConfiguration();
-        return new GridBucket(configuration, new HazelcastProxy(imap, key));
-    }
+    Bucket buildHazelcast(IMap<Object, GridBucketState> imap, Serializable key);
 
     /**
-     * Constructs an instance of {@link com.github.bucket4j.grid.GridBucket} which responsible to limit rate inside Apache Ignite(GridGain) cluster.
+     * Constructs an instance of {@link com.github.bucket4j.impl.grid.GridBucket} which responsible to limit rate inside Apache Ignite(GridGain) cluster.
      *
      * @param cache distributed cache which will hold bucket inside cluster.
      *             Feel free to store inside single {@code cache} as mush buckets as you need.
      * @param key  for storing bucket inside {@code cache}.
      *             If you plan to store multiple buckets inside single {@code cache}, then each bucket should has own unique {@code key}.
      *
-     * @see com.github.bucket4j.grid.ignite.IgniteProxy
+     * @see com.github.bucket4j.impl.grid.ignite.IgniteProxy
      */
-    public Bucket buildIgnite(IgniteCache<Object, GridBucketState> cache, Object key) {
-        BucketConfiguration configuration = createConfiguration();
-        return new GridBucket(configuration, new IgniteProxy(cache, key));
-    }
+    Bucket buildIgnite(IgniteCache<Object, GridBucketState> cache, Object key);
 
     /**
-     * Constructs an instance of {@link com.github.bucket4j.grid.GridBucket} which responsible to limit rate inside Oracle Coherence cluster.
+     * Constructs an instance of {@link com.github.bucket4j.impl.grid.GridBucket} which responsible to limit rate inside Oracle Coherence cluster.
      *
      * @param cache distributed cache which will hold bucket inside cluster.
      *             Feel free to store inside single {@code cache} as mush buckets as you need.
      * @param key  for storing bucket inside {@code cache}.
      *             If you plan to store multiple buckets inside single {@code cache}, then each bucket should has own unique {@code key}.
      *
-     * @see com.github.bucket4j.grid.coherence.CoherenceProxy
+     * @see com.github.bucket4j.impl.grid.coherence.CoherenceProxy
      */
-    public Bucket buildCoherence(NamedCache cache, Object key) {
-        BucketConfiguration configuration = createConfiguration();
-        return new GridBucket(configuration, new CoherenceProxy(cache, key));
-    }
+    Bucket buildCoherence(NamedCache cache, Object key);
 
     /**
      * Build distributed bucket for custom grid which is not supported out of the box.
      *
      * @param gridProxy delegate for accessing to your grid.
      *
-     * @see com.github.bucket4j.grid.GridProxy
+     * @see com.github.bucket4j.impl.grid.GridProxy
      */
-    public Bucket buildCustomGrid(GridProxy gridProxy) {
-        BucketConfiguration configuration = createConfiguration();
-        return new GridBucket(configuration, gridProxy);
-    }
+    Bucket buildCustomGrid(GridProxy gridProxy);
 
     /**
      * Adds guaranteed bandwidth for all buckets which will be constructed by this builder instance.
@@ -178,9 +147,7 @@ public final class BucketBuilder {
      * @param period Period of bandwidth.
      *
      */
-    public BucketBuilder withGuaranteedBandwidth(long maxCapacity, Duration period) {
-        return withGuaranteedBandwidth(maxCapacity, maxCapacity, period);
-    }
+    BucketBuilder withGuaranteedBandwidth(long maxCapacity, Duration period);
 
     /**
      * Adds guaranteed bandwidth for all buckets which will be constructed by this builder instance.
@@ -207,36 +174,7 @@ public final class BucketBuilder {
      * @param period Period of bandwidth.
      *
      */
-    public BucketBuilder withGuaranteedBandwidth(long maxCapacity, long initialCapacity, Duration period) {
-        final BandwidthDefinition bandwidth = new BandwidthDefinition(maxCapacity, initialCapacity, period, true);
-        bandwidths.add(bandwidth);
-        return this;
-    }
-
-    /**
-     * Adds guaranteed bandwidth for all buckets which will be constructed by this builder instance.
-     * <p>
-     * Guaranteed bandwidth provides following feature: if tokens can be consumed from guaranteed bandwidth,
-     * then bucket4j do not perform checking of any limited bandwidths.
-     * <p>
-     * Unlike limited bandwidths, you can use only one guaranteed bandwidth per single bucket.
-     * <p>
-     *
-     * In opposite to method {@link #withGuaranteedBandwidth(long, TimeUnit, long)},
-     * this method does not perform checking of limitation
-     * which disallow to have greater rate of guaranteed than rate of limited bandwidth,
-     * because rate is dynamic and depends from <code>bandwidthAdjuster</code>.
-     *
-     * @param capacityAdjuster provider of bandwidth capacity
-     * @param initialCapacity initial capacity of bandwidth.
-     * @param period Period of bandwidth.
-     *
-     */
-    public BucketBuilder withGuaranteedBandwidth(CapacityAdjuster capacityAdjuster, long initialCapacity, Duration period) {
-        final BandwidthDefinition bandwidth = new BandwidthDefinition(capacityAdjuster, initialCapacity, period, true);
-        bandwidths.add(bandwidth);
-        return this;
-    }
+    BucketBuilder withGuaranteedBandwidth(long maxCapacity, long initialCapacity, Duration period);
 
     /**
      * Adds limited bandwidth for all buckets which will be constructed by this builder instance.
@@ -258,9 +196,7 @@ public final class BucketBuilder {
      * @param period Period of bandwidth.
      *
      */
-    public BucketBuilder withLimitedBandwidth(long maxCapacity, Duration period) {
-        return withLimitedBandwidth(maxCapacity, maxCapacity, period);
-    }
+    BucketBuilder withLimitedBandwidth(long maxCapacity, Duration period);
 
     /**
      * Adds limited bandwidth for all buckets which will be constructed by this builder instance.
@@ -282,11 +218,7 @@ public final class BucketBuilder {
      * @param period Period of bandwidth.
      *
      */
-    public BucketBuilder withLimitedBandwidth(long maxCapacity, long initialCapacity, Duration period) {
-        final BandwidthDefinition bandwidth = new BandwidthDefinition(maxCapacity, initialCapacity, period, false);
-        bandwidths.add(bandwidth);
-        return this;
-    }
+    BucketBuilder withLimitedBandwidth(long maxCapacity, long initialCapacity, Duration period);
 
     /**
      * Adds limited bandwidth for all buckets which will be constructed by this builder instance.
@@ -301,36 +233,26 @@ public final class BucketBuilder {
      * @param period Period of bandwidth.
      *
      */
-    public BucketBuilder withLimitedBandwidth(CapacityAdjuster capacityAdjuster, long initialCapacity, Duration period) {
-        final BandwidthDefinition bandwidth = new BandwidthDefinition(capacityAdjuster, initialCapacity, period, false);
-        bandwidths.add(bandwidth);
-        return this;
-    }
+    BucketBuilder withLimitedBandwidth(CapacityAdjuster capacityAdjuster, long initialCapacity, Duration period);
 
     /**
-     * @return Time meter used for time measuring.
+     * Adds guaranteed bandwidth for all buckets which will be constructed by this builder instance.
+     * <p>
+     * Guaranteed bandwidth provides following feature: if tokens can be consumed from guaranteed bandwidth,
+     * then bucket4j do not perform checking of any limited bandwidths.
+     * <p>
+     * Unlike limited bandwidths, you can use only one guaranteed bandwidth per single bucket.
+     * <p>
+     *
+     * In opposite to method {@link com.github.bucket4j.BucketBuilder#withGuaranteedBandwidth(long, long, Duration)} ,
+     * this method does not perform checking of limitation which disallow to have greater rate of guaranteed than rate of limited bandwidth,
+     * because rate is dynamic and depends from <code>bandwidthAdjuster</code>.
+     *
+     * @param capacityAdjuster provider of bandwidth capacity
+     * @param initialCapacity initial capacity of bandwidth.
+     * @param period Period of bandwidth.
+     *
      */
-    public TimeMeter getTimeMeter() {
-        return timeMeter;
-    }
-
-    /**
-     * @return configuration which used for bucket construction.
-     */
-    public BucketConfiguration createConfiguration() {
-        return new BucketConfiguration(this.bandwidths, timeMeter);
-    }
-
-    @Override
-    public String toString() {
-        return "BucketBuilder{" +
-                "timeMeter=" + timeMeter +
-                ", bandwidths=" + bandwidths +
-                '}';
-    }
-
-    BandwidthDefinition getBandwidthDefinition(int index) {
-        return bandwidths.get(index);
-    }
+    BucketBuilder withGuaranteedBandwidth(CapacityAdjuster capacityAdjuster, long initialCapacity, Duration period);
 
 }

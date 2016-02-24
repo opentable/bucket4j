@@ -13,12 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.github.bucket4j;
+package com.github.bucket4j.impl;
+
+import com.github.bucket4j.AdvancedBucket;
+import com.github.bucket4j.Bucket;
 
 import java.time.Duration;
 
-import static com.github.bucket4j.BucketExceptions.nonPositiveNanosToWait;
-import static com.github.bucket4j.BucketExceptions.nonPositiveTokensToConsume;
+import static com.github.bucket4j.impl.BucketExceptions.nonPositiveNanosToWait;
+import static com.github.bucket4j.impl.BucketExceptions.nonPositiveTokensToConsume;
 
 public abstract class AbstractBucket implements Bucket {
 
@@ -49,16 +52,16 @@ public abstract class AbstractBucket implements Bucket {
     }
 
     @Override
-    public long consumeSingleToken() throws InterruptedException {
-        return consume(1);
+    public void consumeSingleToken() throws InterruptedException {
+        consume(1);
     }
 
     @Override
-    public long consume(long tokensToConsume) throws InterruptedException {
+    public void consume(long tokensToConsume) throws InterruptedException {
         if (tokensToConsume <= 0) {
             throw nonPositiveTokensToConsume(tokensToConsume);
         }
-        return consumeOrAwaitImpl(tokensToConsume, UNSPECIFIED_WAITING_LIMIT);
+        consumeOrAwaitImpl(tokensToConsume, UNSPECIFIED_WAITING_LIMIT);
     }
 
     @Override

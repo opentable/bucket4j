@@ -14,13 +14,17 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j;
+package com.github.bucket4j.impl;
+
+import com.github.bucket4j.TimeMeter;
+import com.github.bucket4j.impl.Bandwidth;
+import com.github.bucket4j.impl.BandwidthDefinition;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.github.bucket4j.BucketExceptions.*;
+import static com.github.bucket4j.impl.BucketExceptions.*;
 
 public final class BucketConfiguration implements Serializable {
 

@@ -14,20 +14,14 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.grid;
+package com.github.bucket4j.impl.grid;
 
-import com.github.bucket4j.BucketState;
+import java.io.Serializable;
 
-public class CreateSnapshotCommand implements GridCommand<BucketState> {
+public interface GridProxy {
 
-    @Override
-    public BucketState execute(GridBucketState gridState) {
-        return gridState.getBucketState().clone();
-    }
+    <T extends Serializable> T execute(GridCommand<T> command);
 
-    @Override
-    public boolean isBucketStateModified() {
-        return false;
-    }
+    void setInitialState(GridBucketState initialState);
 
 }

@@ -16,6 +16,8 @@
 
 package com.github.bucket4j
 
+import com.github.bucket4j.impl.Bandwidth
+import com.github.bucket4j.impl.BucketState
 import com.github.bucket4j.mock.TimeMeterMock
 import spock.lang.Specification
 

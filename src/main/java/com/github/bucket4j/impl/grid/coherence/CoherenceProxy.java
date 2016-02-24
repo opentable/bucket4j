@@ -14,33 +14,38 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.grid.ignite;
+package com.github.bucket4j.impl.grid.coherence;
 
-import com.github.bucket4j.grid.GridBucketState;
-import com.github.bucket4j.grid.GridCommand;
-import com.github.bucket4j.grid.GridProxy;
-import org.apache.ignite.IgniteCache;
+import com.github.bucket4j.impl.grid.GridBucketState;
+import com.github.bucket4j.impl.grid.GridCommand;
+import com.github.bucket4j.impl.grid.GridProxy;
+import com.tangosol.net.NamedCache;
+import com.tangosol.util.filter.NotFilter;
+import com.tangosol.util.filter.PresentFilter;
+import com.tangosol.util.processor.ConditionalPut;
 
 import java.io.Serializable;
 
-public class IgniteProxy implements GridProxy {
+public class CoherenceProxy implements GridProxy {
 
-    private final IgniteCache<Object, GridBucketState> cache;
+    private final NamedCache cache;
     private final Object key;
 
-    public IgniteProxy(IgniteCache<Object, GridBucketState> cache, Object key) {
+    public CoherenceProxy(NamedCache cache, Object key) {
         this.cache = cache;
         this.key = key;
     }
 
     @Override
     public <T extends Serializable> T execute(GridCommand<T> command) {
-        return cache.invoke(key, new IgniteCommand<T>(), command);
+        CoherenceCommand<T> entryProcessor = new CoherenceCommand<>(command);
+        return (T) cache.invoke(key, entryProcessor);
     }
 
     @Override
     public void setInitialState(GridBucketState initialState) {
-        cache.putIfAbsent(key, initialState);
+        NotFilter filter = new NotFilter(PresentFilter.INSTANCE);
+        cache.invoke(key, new ConditionalPut(filter, initialState));
     }
 
 }

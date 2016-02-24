@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.grid;
+package com.github.bucket4j.impl.grid;
 
 import java.io.Serializable;
 

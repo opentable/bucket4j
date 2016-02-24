@@ -21,7 +21,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 import java.time.Duration
 
-import static com.github.bucket4j.BucketExceptions.*
+import static com.github.bucket4j.impl.BucketExceptions.*
 import static com.github.bucket4j.BucketBuilder.forCustomTimePrecision
 import static com.github.bucket4j.BucketBuilder.forNanosecondPrecision
 

@@ -14,7 +14,9 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j;
+package com.github.bucket4j.impl;
+
+import com.github.bucket4j.CapacityAdjuster;
 
 import java.io.Serializable;
 

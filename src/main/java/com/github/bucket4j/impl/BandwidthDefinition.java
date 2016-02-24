@@ -14,11 +14,14 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j;
+package com.github.bucket4j.impl;
+
+import com.github.bucket4j.CapacityAdjuster;
+import com.github.bucket4j.impl.Bandwidth;
 
 import java.time.Duration;
 
-import static com.github.bucket4j.BucketExceptions.*;
+import static com.github.bucket4j.impl.BucketExceptions.*;
 
 public class BandwidthDefinition {
 
