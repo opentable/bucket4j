@@ -8,6 +8,8 @@ import com.github.bucket4j.impl.grid.coherence.CoherenceProxy;
 import com.github.bucket4j.impl.grid.hazelcast.HazelcastProxy;
 import com.github.bucket4j.impl.grid.ignite.IgniteProxy;
 import com.github.bucket4j.impl.local.LockFreeBucket;
+import com.github.bucket4j.statistic.DummyStatisticCollector;
+import com.github.bucket4j.statistic.StatisticCollector;
 import com.hazelcast.core.IMap;
 import com.tangosol.net.NamedCache;
 import org.apache.ignite.IgniteCache;
@@ -21,14 +23,38 @@ import static com.github.bucket4j.impl.BucketExceptions.nullTimeMetter;
 
 public class BucketBuilderImpl implements BucketBuilder {
 
-    private TimeMeter timeMeter = TimeMeter.SYSTEM_NANOTIME;
+    private TimeMeter timeMeter = TimeMeter.SYSTEM_MILLISECONDS;
     private List<BandwidthDefinition> bandwidths = new ArrayList<>(1);
+    private StatisticCollector statisticCollector = DummyStatisticCollector.INSTANCE;
 
-    public BucketBuilderImpl(TimeMeter timeMeter) {
+    @Override
+    public BucketBuilder useMillisecondPrecision() {
+        this.timeMeter = TimeMeter.SYSTEM_MILLISECONDS;
+        return this;
+    }
+
+    @Override
+    public BucketBuilder useNanosecondPrecision() {
+        this.timeMeter = TimeMeter.SYSTEM_NANOTIME;
+        return this;
+    }
+
+    @Override
+    public BucketBuilder withCustomTimePrecision(TimeMeter customTimeMeter) {
         if (timeMeter == null) {
             throw nullTimeMetter();
         }
-        this.timeMeter = timeMeter;
+        this.timeMeter = customTimeMeter;
+        return this;
+    }
+
+    @Override
+    public BucketBuilder withStatisticCollector(StatisticCollector statisticCollector) {
+        if (statisticCollector == null) {
+            throw new NullPointerException("Statistic collector can not be NULL");
+        }
+        this.statisticCollector = statisticCollector;
+        return this;
     }
 
     @Override

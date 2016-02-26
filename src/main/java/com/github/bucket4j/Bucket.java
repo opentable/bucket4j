@@ -15,6 +15,7 @@
  */
 package com.github.bucket4j;
 
+import com.github.bucket4j.impl.BucketBuilderImpl;
 import com.github.bucket4j.impl.BucketConfiguration;
 import com.github.bucket4j.impl.BucketState;
 import com.github.bucket4j.statistic.StatisticSnapshot;
@@ -35,6 +36,10 @@ import java.util.concurrent.ScheduledExecutorService;
  * @see <a href="http://en.wikipedia.org/wiki/Generic_cell_rate_algorithm">Generic cell rate algorithm</a>
  */
 public interface Bucket {
+
+    static BucketBuilder builder() {
+        return new BucketBuilderImpl();
+    }
 
     /**
      * Attempts to consume a single token from the bucket.  If it was consumed then {@code true} is returned, otherwise

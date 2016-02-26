@@ -15,24 +15,16 @@
  */
 
 package com.github.bucket4j;
-
-import com.github.bucket4j.impl.BandwidthDefinition;
 import com.github.bucket4j.impl.BucketBuilderImpl;
-import com.github.bucket4j.impl.BucketConfiguration;
-import com.github.bucket4j.impl.grid.GridBucket;
 import com.github.bucket4j.impl.grid.GridBucketState;
 import com.github.bucket4j.impl.grid.GridProxy;
-import com.github.bucket4j.impl.grid.coherence.CoherenceProxy;
-import com.github.bucket4j.impl.grid.hazelcast.HazelcastProxy;
-import com.github.bucket4j.impl.grid.ignite.IgniteProxy;
-import com.github.bucket4j.impl.local.LockFreeBucket;
+import com.github.bucket4j.statistic.StatisticCollector;
 import com.hazelcast.core.IMap;
 import com.tangosol.net.NamedCache;
 import org.apache.ignite.IgniteCache;
 
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A builder for buckets. Builder can be reused, i.e. one builder can create multiple buckets with similar configuration.
@@ -43,33 +35,29 @@ import java.util.concurrent.TimeUnit;
 public interface BucketBuilder {
 
     /**
-     * Creates instance of {@link com.github.bucket4j.BucketBuilder} which will create buckets with {@link com.github.bucket4j.TimeMeter#SYSTEM_MILLISECONDS} as time meter.
+     * Configures {@link com.github.bucket4j.TimeMeter#SYSTEM_MILLISECONDS} as time meter.
      *
      * @return
      */
-    static BucketBuilder forMillisecondPrecision() {
-        return new BucketBuilderImpl(TimeMeter.SYSTEM_MILLISECONDS);
-    }
+    BucketBuilder useMillisecondPrecision();
 
     /**
-     * Creates instance of {@link com.github.bucket4j.BucketBuilder} which will create buckets with {@link com.github.bucket4j.TimeMeter#SYSTEM_NANOTIME} as time meter.
+     * Configures {@link com.github.bucket4j.TimeMeter#SYSTEM_NANOTIME} as time meter.
      *
      * @return
      */
-    static BucketBuilder forNanosecondPrecision() {
-        return new BucketBuilderImpl(TimeMeter.SYSTEM_NANOTIME);
-    }
+    BucketBuilder useNanosecondPrecision();
 
     /**
-     * Creates instance of {@link com.github.bucket4j.BucketBuilder} which will create buckets with {@code customTimeMeter} as time meter.
+     * Configures {@code customTimeMeter} as time meter.
      *
      * @param customTimeMeter object which will measure time.
      *
      * @return
      */
-    static BucketBuilder forCustomTimePrecision(TimeMeter customTimeMeter) {
-        return new BucketBuilderImpl(customTimeMeter);
-    }
+    BucketBuilder withCustomTimePrecision(TimeMeter customTimeMeter);
+
+    BucketBuilder withStatisticCollector(StatisticCollector statisticCollector);
 
     /**
      * Constructs an instance of {@link com.github.bucket4j.impl.local.LockFreeBucket}

@@ -31,10 +31,7 @@ public final class BucketConfiguration implements Serializable {
     private final Bandwidth[] bandwidths;
     private final TimeMeter timeMeter;
 
-    public BucketConfiguration(List<BandwidthDefinition> bandwidthDefinitions, TimeMeter timeMeter) {
-        if (timeMeter == null) {
-            throw nullTimeMetter();
-        }
+    BucketConfiguration(List<BandwidthDefinition> bandwidthDefinitions, TimeMeter timeMeter) {
         this.timeMeter = timeMeter;
 
         checkCompatibility(bandwidthDefinitions);
