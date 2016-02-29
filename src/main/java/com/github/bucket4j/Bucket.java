@@ -37,7 +37,11 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public interface Bucket {
 
-    static BucketBuilder builder() {
+    static LocalBucketBuilder builder() {
+        return new BucketBuilderImpl();
+    }
+
+    static DistributedBucketBuilder distributedBuilder() {
         return new BucketBuilderImpl();
     }
 
@@ -166,34 +170,5 @@ public interface Bucket {
      * @throws IllegalArgumentException if the number of numTokens to return is negative or zero
      */
     void returnTokens(long numTokens);
-
-    /**
-     * Creates snapshot of bucket statistic which actual on the moment of invocation.
-     *
-     * @return snapshot of bucket statistic
-     * @throws IllegalStateException if statistic collector is not configured for this bucket during construction
-     */
-    StatisticSnapshot getStatisticSnapshot();
-
-    /**
-     * Returns configuration of bucket.
-     *
-     * @return Bucket configuration
-     */
-    BucketConfiguration getConfiguration();
-
-    /**
-     * Creates snapshot of bucket state.
-     *
-     * @return Snapshot of bucket state
-     */
-    BucketState getStateSnapshot();
-
-    /**
-     * Restore bucket state from snapshot.
-     *
-     * @param snapshot previously snapshot
-     */
-    void applySnapshot(BucketState snapshot);
 
 }

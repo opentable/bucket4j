@@ -18,10 +18,11 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.github.bucket4j.impl.BucketExceptions.nullTimeMetter;
 
-public class BucketBuilderImpl implements BucketBuilder {
+public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilder, LocalBucketBuilder {
 
     private TimeMeter timeMeter = TimeMeter.SYSTEM_MILLISECONDS;
     private List<BandwidthDefinition> bandwidths = new ArrayList<>(1);
@@ -61,6 +62,18 @@ public class BucketBuilderImpl implements BucketBuilder {
     public Bucket build() {
         BucketConfiguration configuration = createConfiguration();
         return new LockFreeBucket(configuration);
+    }
+
+    @Override
+    public BucketBuilder withLocalStatisticCollector(StatisticCollector statisticCollector) {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public BucketBuilder withRemoteStatisticCollector(Supplier<StatisticCollector> statisticCollector) {
+        // TODO
+        return null;
     }
 
     @Override

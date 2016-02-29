@@ -15,7 +15,6 @@
  */
 package com.github.bucket4j.impl;
 
-import com.github.bucket4j.AdvancedBucket;
 import com.github.bucket4j.Bucket;
 
 import java.time.Duration;
@@ -37,6 +36,30 @@ public abstract class AbstractBucket implements Bucket {
     protected abstract boolean tryConsumeImpl(long tokensToConsume);
 
     protected abstract long consumeOrAwaitImpl(long tokensToConsume, long waitIfBusyNanos) throws InterruptedException;
+
+    /**
+     * Returns configuration of bucket.
+     *
+     * @return Bucket configuration
+     */
+    public BucketConfiguration getConfiguration() {
+        return configuration;
+    }
+
+
+    /**
+     * Creates snapshot of bucket state.
+     *
+     * @return Snapshot of bucket state
+     */
+    abstract public BucketState getStateSnapshot();
+
+    /**
+     * Restore bucket state from snapshot.
+     *
+     * @param snapshot previously snapshot
+     */
+    abstract public void applySnapshot(BucketState snapshot);
 
     @Override
     public boolean tryConsumeSingleToken() {
@@ -95,11 +118,6 @@ public abstract class AbstractBucket implements Bucket {
     @Override
     public long consumeAsMuchAsPossible() {
         return consumeAsMuchAsPossibleImpl(Long.MAX_VALUE);
-    }
-
-    @Override
-    public BucketConfiguration getConfiguration() {
-        return configuration;
     }
 
 }
