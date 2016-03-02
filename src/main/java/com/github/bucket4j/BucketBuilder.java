@@ -15,11 +15,7 @@
  */
 
 package com.github.bucket4j;
-import com.github.bucket4j.impl.grid.GridBucketState;
-import com.github.bucket4j.statistic.StatisticCollector;
-import com.hazelcast.core.IMap;
 
-import java.io.Serializable;
 import java.time.Duration;
 
 /**
@@ -107,12 +103,32 @@ public interface BucketBuilder {
     BucketBuilder withGuaranteedBandwidth(long maxCapacity, long initialCapacity, Duration period);
 
     /**
+     * Adds guaranteed bandwidth for all buckets which will be constructed by this builder instance.
+     * <p>
+     * Guaranteed bandwidth provides following feature: if tokens can be consumed from guaranteed bandwidth,
+     * then bucket4j do not perform checking of any limited bandwidths.
+     * <p>
+     * Unlike limited bandwidths, you can use only one guaranteed bandwidth per single bucket.
+     * <p>
+     *
+     * In opposite to method {@link com.github.bucket4j.BucketBuilder#withGuaranteedBandwidth(long, long, Duration)} ,
+     * this method does not perform checking of limitation which disallow to have greater rate of guaranteed than rate of limited bandwidth,
+     * because rate is dynamic and depends from <code>bandwidthAdjuster</code>.
+     *
+     * @param capacityFunction provider of bandwidth capacity
+     * @param initialCapacity initial capacity of bandwidth.
+     * @param period Period of bandwidth.
+     *
+     */
+    BucketBuilder withGuaranteedBandwidth(CapacityFunction capacityFunction, long initialCapacity, Duration period);
+
+    /**
      * Adds limited bandwidth for all buckets which will be constructed by this builder instance.
      * <p>
      * You can specify as many limited bandwidth as needed, but with following limitation: each limited bandwidth should has unique period,
      * and when period of bandwidth <tt>X</tt> is greater than bandwidth <tt>Y</tt>,
      * then capacity of bandwidth <tt>X</tt> should be greater capacity of bandwidth <tt>Y</tt>,
-     * except cases when capacity of bandwidth <tt>X</tt> or <tt>Y</tt> is dynamic(provided by {@link CapacityAdjuster}).
+     * except cases when capacity of bandwidth <tt>X</tt> or <tt>Y</tt> is dynamic(provided by {@link CapacityFunction}).
      * <p>
      * <pre>
      * {@code
@@ -134,7 +150,7 @@ public interface BucketBuilder {
      * You can specify as many limited bandwidth as needed, but with following limitation: each limited bandwidth should has unique period,
      * and when period of bandwidth <tt>X</tt> is greater than bandwidth <tt>Y</tt>,
      * then capacity of bandwidth <tt>X</tt> should be greater capacity of bandwidth <tt>Y</tt>,
-     * except cases when capacity of bandwidth <tt>X</tt> or <tt>Y</tt> is dynamic(provided by {@link CapacityAdjuster}).
+     * except cases when capacity of bandwidth <tt>X</tt> or <tt>Y</tt> is dynamic(provided by {@link CapacityFunction}).
      * <p>
      * <pre>
      * {@code
@@ -156,33 +172,13 @@ public interface BucketBuilder {
      * You can specify as many limited bandwidth as needed, but with following limitation: each limited bandwidth should has unique period,
      * and when period of bandwidth <tt>X</tt> is greater than bandwidth <tt>Y</tt>,
      * then capacity of bandwidth <tt>X</tt> should be greater capacity of bandwidth <tt>Y</tt>,
-     * except cases when capacity of bandwidth <tt>X</tt> or <tt>Y</tt> is dynamic(provided by {@link CapacityAdjuster}).
+     * except cases when capacity of bandwidth <tt>X</tt> or <tt>Y</tt> is dynamic(provided by {@link CapacityFunction}).
      *
-     * @param capacityAdjuster provider of bandwidth capacity
+     * @param capacityFunction provider of bandwidth capacity
      * @param initialCapacity initial capacity
      * @param period Period of bandwidth.
      *
      */
-    BucketBuilder withLimitedBandwidth(CapacityAdjuster capacityAdjuster, long initialCapacity, Duration period);
-
-    /**
-     * Adds guaranteed bandwidth for all buckets which will be constructed by this builder instance.
-     * <p>
-     * Guaranteed bandwidth provides following feature: if tokens can be consumed from guaranteed bandwidth,
-     * then bucket4j do not perform checking of any limited bandwidths.
-     * <p>
-     * Unlike limited bandwidths, you can use only one guaranteed bandwidth per single bucket.
-     * <p>
-     *
-     * In opposite to method {@link com.github.bucket4j.BucketBuilder#withGuaranteedBandwidth(long, long, Duration)} ,
-     * this method does not perform checking of limitation which disallow to have greater rate of guaranteed than rate of limited bandwidth,
-     * because rate is dynamic and depends from <code>bandwidthAdjuster</code>.
-     *
-     * @param capacityAdjuster provider of bandwidth capacity
-     * @param initialCapacity initial capacity of bandwidth.
-     * @param period Period of bandwidth.
-     *
-     */
-    BucketBuilder withGuaranteedBandwidth(CapacityAdjuster capacityAdjuster, long initialCapacity, Duration period);
+    BucketBuilder withLimitedBandwidth(CapacityFunction capacityFunction, long initialCapacity, Duration period);
 
 }

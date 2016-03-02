@@ -16,7 +16,7 @@
 
 package com.github.bucket4j
 
-import com.github.bucket4j.mock.AdjusterMock
+import com.github.bucket4j.mock.FunctionMock
 import spock.lang.Specification
 import spock.lang.Unroll
 import java.time.Duration
@@ -117,11 +117,11 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
                 .withGuaranteedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
                 .withLimitedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
             def builder3 = forNanosecondPrecision()
-                .withLimitedBandwidth(new AdjusterMock(VALID_CAPACITY), 0, Duration.ofMinutes(VALID_PERIOD))
+                .withLimitedBandwidth(new FunctionMock(VALID_CAPACITY), 0, Duration.ofMinutes(VALID_PERIOD))
                 .withGuaranteedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
             def builder4 = forNanosecondPrecision()
                 .withLimitedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
-                .withGuaranteedBandwidth(new AdjusterMock(VALID_CAPACITY), 0, Duration.ofMinutes(VALID_PERIOD))
+                .withGuaranteedBandwidth(new FunctionMock(VALID_CAPACITY), 0, Duration.ofMinutes(VALID_PERIOD))
         when:
             builder1.build()
         then:
@@ -149,11 +149,11 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
                 .withLimitedBandwidth(firstCapacity, Duration.ofMinutes(firstPeriod))
                 .withLimitedBandwidth(secondCapacity, Duration.ofMinutes(secondPeriod))
             def builderWithDynamicCapacity1 = forNanosecondPrecision()
-                .withLimitedBandwidth(new AdjusterMock(firstCapacity), 0, Duration.ofMinutes(firstPeriod))
+                .withLimitedBandwidth(new FunctionMock(firstCapacity), 0, Duration.ofMinutes(firstPeriod))
                 .withLimitedBandwidth(secondCapacity, Duration.ofMinutes(secondPeriod))
             def builderWithDynamicCapacity2 = forNanosecondPrecision()
                 .withLimitedBandwidth(firstCapacity, Duration.ofMinutes(firstPeriod))
-                .withLimitedBandwidth(new AdjusterMock(secondCapacity), 0, Duration.ofMinutes(secondPeriod))
+                .withLimitedBandwidth(new FunctionMock(secondCapacity), 0, Duration.ofMinutes(secondPeriod))
         when:
             builderWithStaticCapacity.build()
         then:

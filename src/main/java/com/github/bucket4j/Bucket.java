@@ -16,9 +16,6 @@
 package com.github.bucket4j;
 
 import com.github.bucket4j.impl.BucketBuilderImpl;
-import com.github.bucket4j.impl.BucketConfiguration;
-import com.github.bucket4j.impl.BucketState;
-import com.github.bucket4j.statistic.StatisticSnapshot;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;

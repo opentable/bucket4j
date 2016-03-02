@@ -16,8 +16,7 @@
 
 package com.github.bucket4j.impl;
 
-import com.github.bucket4j.CapacityAdjuster;
-import com.github.bucket4j.impl.Bandwidth;
+import com.github.bucket4j.CapacityFunction;
 
 import java.time.Duration;
 
@@ -26,7 +25,7 @@ import static com.github.bucket4j.impl.BucketExceptions.*;
 public class BandwidthDefinition {
 
     final long capacity;
-    final CapacityAdjuster adjuster;
+    final CapacityFunction adjuster;
     final long initialCapacity;
     final long periodNanos;
     final boolean guaranteed;
@@ -36,11 +35,11 @@ public class BandwidthDefinition {
         this(validateCapacity(capacity), null, initialCapacity, period, guaranteed);
     }
 
-    public BandwidthDefinition(CapacityAdjuster adjuster, long initialCapacity, Duration period, boolean guaranteed) {
+    public BandwidthDefinition(CapacityFunction adjuster, long initialCapacity, Duration period, boolean guaranteed) {
         this(0l, validateAdjuster(adjuster), initialCapacity, period, guaranteed);
     }
 
-    private BandwidthDefinition(long capacity, CapacityAdjuster adjuster, long initialCapacity, Duration period, boolean guaranteed) {
+    private BandwidthDefinition(long capacity, CapacityFunction adjuster, long initialCapacity, Duration period, boolean guaranteed) {
         long periodNanos = period.toNanos();
         if (initialCapacity < 0) {
             throw nonPositiveInitialCapacity(initialCapacity);
@@ -57,8 +56,8 @@ public class BandwidthDefinition {
     }
 
     public Bandwidth createBandwidth() {
-        CapacityAdjuster capacityAdjuster = adjuster != null ? adjuster : new CapacityAdjuster.ImmutableCapacity(capacity);
-        return new Bandwidth(capacityAdjuster, initialCapacity, periodNanos, guaranteed);
+        CapacityFunction capacityFunction = adjuster != null ? adjuster : new CapacityFunction.ImmutableCapacity(capacity);
+        return new Bandwidth(capacityFunction, initialCapacity, periodNanos, guaranteed);
     }
 
     boolean hasDynamicCapacity() {
@@ -80,7 +79,7 @@ public class BandwidthDefinition {
         return capacity;
     }
 
-    private static CapacityAdjuster validateAdjuster(CapacityAdjuster adjuster) {
+    private static CapacityFunction validateAdjuster(CapacityFunction adjuster) {
         if (adjuster == null) {
             throw nullBandwidthAdjuster();
         }

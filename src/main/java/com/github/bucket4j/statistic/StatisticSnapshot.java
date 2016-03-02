@@ -51,4 +51,14 @@ public class StatisticSnapshot implements Serializable {
         return TimeUnit.NANOSECONDS.toSeconds(sleepingNanos);
     }
 
+    @Override
+    public String toString() {
+        return "StatisticSnapshot{" +
+                "consumedTokens=" + consumedTokens +
+                ", rejectedTokens=" + rejectedTokens +
+                ", returnedTokens=" + returnedTokens +
+                ", interruptsCount=" + interruptsCount +
+                ", sleepingNanos=" + sleepingNanos +
+                '}';
+    }
 }

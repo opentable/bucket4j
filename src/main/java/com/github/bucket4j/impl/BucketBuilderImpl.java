@@ -113,8 +113,8 @@ public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilde
     }
 
     @Override
-    public BucketBuilder withGuaranteedBandwidth(CapacityAdjuster capacityAdjuster, long initialCapacity, Duration period) {
-        final BandwidthDefinition bandwidth = new BandwidthDefinition(capacityAdjuster, initialCapacity, period, true);
+    public BucketBuilder withGuaranteedBandwidth(CapacityFunction capacityFunction, long initialCapacity, Duration period) {
+        final BandwidthDefinition bandwidth = new BandwidthDefinition(capacityFunction, initialCapacity, period, true);
         bandwidths.add(bandwidth);
         return this;
     }
@@ -132,8 +132,8 @@ public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilde
     }
 
     @Override
-    public BucketBuilder withLimitedBandwidth(CapacityAdjuster capacityAdjuster, long initialCapacity, Duration period) {
-        final BandwidthDefinition bandwidth = new BandwidthDefinition(capacityAdjuster, initialCapacity, period, false);
+    public BucketBuilder withLimitedBandwidth(CapacityFunction capacityFunction, long initialCapacity, Duration period) {
+        final BandwidthDefinition bandwidth = new BandwidthDefinition(capacityFunction, initialCapacity, period, false);
         bandwidths.add(bandwidth);
         return this;
     }

@@ -16,13 +16,13 @@
 
 package com.github.bucket4j.mock;
 
-import com.github.bucket4j.CapacityAdjuster;
+import com.github.bucket4j.CapacityFunction;
 
-public class AdjusterMock implements CapacityAdjuster {
+public class FunctionMock implements CapacityFunction {
 
     private long capacity = 0;
 
-    public AdjusterMock(long capacity) {
+    public FunctionMock(long capacity) {
         this.capacity = capacity;
     }
 

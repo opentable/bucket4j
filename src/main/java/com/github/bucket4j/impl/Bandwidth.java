@@ -16,7 +16,7 @@
 
 package com.github.bucket4j.impl;
 
-import com.github.bucket4j.CapacityAdjuster;
+import com.github.bucket4j.CapacityFunction;
 
 import java.io.Serializable;
 
@@ -25,9 +25,9 @@ public class Bandwidth implements Serializable {
     private final long initialCapacity;
     private final long periodNanos;
     private final boolean guaranteed;
-    private final CapacityAdjuster adjuster;
+    private final CapacityFunction adjuster;
 
-    public Bandwidth(CapacityAdjuster adjuster, long initialCapacity, long periodNanos, boolean guaranteed) {
+    public Bandwidth(CapacityFunction adjuster, long initialCapacity, long periodNanos, boolean guaranteed) {
         this.adjuster = adjuster;
         this.initialCapacity = initialCapacity;
         this.periodNanos = periodNanos;

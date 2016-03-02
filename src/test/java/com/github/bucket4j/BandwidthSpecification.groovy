@@ -17,7 +17,7 @@
 package com.github.bucket4j
 
 import com.github.bucket4j.impl.Bandwidth
-import com.github.bucket4j.mock.AdjusterMock
+import com.github.bucket4j.mock.FunctionMock
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -43,7 +43,7 @@ class BandwidthSpecification extends Specification {
                long maxCapacityBefore, long maxCapacityAfter, long timeRefill1, double requiredSize1,
                long timeRefill2, double requiredSize2, long timeRefill3, double requiredSize3) {
         setup:
-            def adjuster = new AdjusterMock(maxCapacityBefore)
+            def adjuster = new FunctionMock(maxCapacityBefore)
             def bandwidth = new Bandwidth(adjuster, initialCapacity, period, false)
             double currentSize = initialCapacity
         when:
@@ -77,7 +77,7 @@ class BandwidthSpecification extends Specification {
     }
 
     private Bandwidth bandwidth(long capacity, long initialCapacity, long period) {
-        return new Bandwidth(new CapacityAdjuster.ImmutableCapacity(capacity), initialCapacity, period, false);
+        return new Bandwidth(new CapacityFunction.ImmutableCapacity(capacity), initialCapacity, period, false);
     }
 
 }
