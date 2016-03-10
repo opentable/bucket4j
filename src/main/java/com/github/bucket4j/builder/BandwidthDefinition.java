@@ -14,11 +14,14 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl;
+package com.github.bucket4j.builder;
 
 import com.github.bucket4j.CapacityFunction;
+import com.github.bucket4j.impl.Bandwidth;
 
 import java.time.Duration;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import static com.github.bucket4j.impl.BucketExceptions.*;
 
@@ -36,7 +39,7 @@ public class BandwidthDefinition {
     }
 
     public BandwidthDefinition(CapacityFunction adjuster, long initialCapacity, Duration period, boolean guaranteed) {
-        this(0l, validateAdjuster(adjuster), initialCapacity, period, guaranteed);
+        this(0l, Objects.requireNonNull(adjuster), initialCapacity, period, guaranteed);
     }
 
     private BandwidthDefinition(long capacity, CapacityFunction adjuster, long initialCapacity, Duration period, boolean guaranteed) {
@@ -56,7 +59,7 @@ public class BandwidthDefinition {
     }
 
     public Bandwidth createBandwidth() {
-        CapacityFunction capacityFunction = adjuster != null ? adjuster : new CapacityFunction.ImmutableCapacity(capacity);
+        CapacityFunction capacityFunction = adjuster != null ? adjuster : CapacityFunction.immutable(capacity);
         return new Bandwidth(capacityFunction, initialCapacity, periodNanos, guaranteed);
     }
 
@@ -77,13 +80,6 @@ public class BandwidthDefinition {
             throw nonPositiveCapacity(capacity);
         }
         return capacity;
-    }
-
-    private static CapacityFunction validateAdjuster(CapacityFunction adjuster) {
-        if (adjuster == null) {
-            throw nullBandwidthAdjuster();
-        }
-        return adjuster;
     }
 
     @Override

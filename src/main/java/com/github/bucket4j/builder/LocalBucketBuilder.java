@@ -1,5 +1,6 @@
-package com.github.bucket4j;
+package com.github.bucket4j.builder;
 
+import com.github.bucket4j.Bucket;
 import com.github.bucket4j.statistic.StatisticCollector;
 
 /**

@@ -16,6 +16,8 @@
 
 package com.github.bucket4j.impl;
 
+import com.github.bucket4j.builder.BandwidthDefinition;
+
 import java.text.MessageFormat;
 
 public final class BucketExceptions {
@@ -35,11 +37,6 @@ public final class BucketExceptions {
 
     public static IllegalArgumentException nullBandwidthAdjuster() {
         String msg = "Bandwidth adjuster can not be null";
-        return new IllegalArgumentException(msg);
-    }
-
-    public static IllegalArgumentException nullTimeMetter() {
-        String msg = "Time metter can not be null";
         return new IllegalArgumentException(msg);
     }
 

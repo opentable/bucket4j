@@ -14,7 +14,10 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j;
+package com.github.bucket4j.builder;
+
+import com.github.bucket4j.CapacityFunction;
+import com.github.bucket4j.TimeMeter;
 
 import java.time.Duration;
 
@@ -31,14 +34,14 @@ public interface BucketBuilder {
      *
      * @return
      */
-    BucketBuilder useMillisecondPrecision();
+    BucketBuilder withMillisecondPrecision();
 
     /**
      * Configures {@link com.github.bucket4j.TimeMeter#SYSTEM_NANOTIME} as time meter.
      *
      * @return
      */
-    BucketBuilder useNanosecondPrecision();
+    BucketBuilder withNanosecondPrecision();
 
     /**
      * Configures {@code customTimeMeter} as time meter.
@@ -111,7 +114,7 @@ public interface BucketBuilder {
      * Unlike limited bandwidths, you can use only one guaranteed bandwidth per single bucket.
      * <p>
      *
-     * In opposite to method {@link com.github.bucket4j.BucketBuilder#withGuaranteedBandwidth(long, long, Duration)} ,
+     * In opposite to method {@link BucketBuilder#withGuaranteedBandwidth(long, long, Duration)} ,
      * this method does not perform checking of limitation which disallow to have greater rate of guaranteed than rate of limited bandwidth,
      * because rate is dynamic and depends from <code>bandwidthAdjuster</code>.
      *

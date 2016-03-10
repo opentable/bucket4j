@@ -15,7 +15,7 @@
  */
 package com.github.bucket4j;
 
-import com.github.bucket4j.impl.BucketBuilderImpl;
+import com.github.bucket4j.builder.*;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -34,12 +34,22 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public interface Bucket {
 
+    /**
+     * Creates builder which performs bucket construction for local usage scenario.
+     *
+     * @return
+     */
     static LocalBucketBuilder builder() {
-        return new BucketBuilderImpl();
+        return new LocalBucketBuilderImpl();
     }
 
+    /**
+     * Creates builder which performs bucket construction for distributed usage scenario.
+     *
+     * @return
+     */
     static DistributedBucketBuilder distributedBuilder() {
-        return new BucketBuilderImpl();
+        return new DistributedBucketBuilderImpl();
     }
 
     /**
@@ -54,7 +64,7 @@ public interface Bucket {
      * Attempt to consume a specified number of tokens from the bucket.  If the tokens were consumed then {@code true}
      * is returned, otherwise {@code false} is returned.
      *
-     * @param numTokens The number of tokens to consume from the bucket, must be a positive number.
+     * @param numTokens The number of tokens to consume from the bucket.
      * @return {@code true} if the tokens were consumed, {@code false} otherwise.
      * @throws IllegalArgumentException if the requested number of tokens is negative or zero
      */
@@ -71,15 +81,17 @@ public interface Bucket {
      * Consumes as much tokens from bucket as available in the bucket at moment of invocation,
      * but tokens which should be consumed is limited by than not more than {@code limit}.
      *
-     * @param limit maximum nubmer of tokens to consume
+     * @param limit maximum number of tokens to consume
      * @return number of tokens which has been consumed, or zero if was consumed nothing.
      * @throws IllegalArgumentException if the specified {@code limit} is negative or zero
      */
     long consumeAsMuchAsPossible(long limit);
 
     /**
-     * Consumes single token from this {@link Bucket} if it can be acquired immediately without
-     * delay.
+     * Consumes the single token from this {@code Bucket} if it can be obtained
+     * without exceeding the specified {@code maxWaiting}, or returns {@code false}
+     * immediately (without waiting) if the tokens would not have been granted
+     * before the timeout expired.
      * <p>
      * <p>This is equivalent for {@code tryConsume(1, maxWaiting)}
      *
@@ -89,6 +101,24 @@ public interface Bucket {
      */
     boolean tryConsumeSingleToken(Duration maxWaiting) throws InterruptedException;
 
+    /**
+     * This is asynchronous version for {@code tryConsumeSingleToken(maxWaiting)} allows to avoid blocking execution thread.
+     *
+     * <ol> Algorithm is following:
+     * <li>If token is currently available then this method will consume token and return {@code CompletableFuture.completedFuture(true)} immediately.<li/>
+     * <li>If the token would not have been granted before the {@code maxWaiting} timeout expired then this method will return {@code CompletableFuture.completedFuture(false)} immediately.</li>
+     * <li>If token is not currently available, but it can be obtained without exceeding the specified {@code maxWaiting} then this method will schedule task to {@code scheduler}
+     * with timeout required to refill token, and after task will be executed future returned by this method will be completed by {@code true}</li>
+     * </ol>
+     *
+     * <p>This is equivalent for {@code tryConsume(1, maxWaiting, scheduler)}
+     *
+     *
+     * @param maxWaiting limit of time which thread can wait.
+     * @param scheduler
+     * @return CompletableFuture which represents result
+     * @throws InterruptedException in case of current thread has been interrupted during waiting
+     */
     CompletableFuture<Boolean> tryConsumeSingleToken(Duration maxWaiting, ScheduledExecutorService scheduler);
 
     /**
@@ -101,7 +131,7 @@ public interface Bucket {
      * @param maxWaiting limit of time which thread can wait.
      * @return {@code true} if {@code numTokens} has been consumed or {@code false} otherwise
      * @throws InterruptedException     in case of current thread has been interrupted during waiting
-     * @throws IllegalArgumentException if the requested number of numTokens is negative or zero
+     * @throws IllegalArgumentException if the requested number of numTokens is negative or zero,
      */
     boolean tryConsume(long numTokens, Duration maxWaiting) throws InterruptedException;
 
@@ -160,7 +190,7 @@ public interface Bucket {
      * Be careful when using this method, because:
      * <ul>
      * <li>Bucket is unable to distinguish case when you are trying to return tokens which were not consumed previously.</li>
-     * <li>Tokens which consumed from guaranteed bandwidth are never returning back to this type of bandwidth.</li>
+     * <li>Tokens which consumed from guaranteed bandwidth are never returning back to guaranteed bandwidth.</li>
      * </ul>
      *
      * @param numTokens number of tokens which need to return to the bucket

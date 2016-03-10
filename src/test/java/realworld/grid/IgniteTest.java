@@ -18,7 +18,7 @@ package realworld.grid;
 
 import com.github.bucket4j.Bucket;
 import com.github.bucket4j.impl.BucketState;
-import com.github.bucket4j.BucketBuilder;
+import com.github.bucket4j.builder.BucketBuilder;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;

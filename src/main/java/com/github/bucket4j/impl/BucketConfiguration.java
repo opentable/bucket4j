@@ -17,8 +17,7 @@
 package com.github.bucket4j.impl;
 
 import com.github.bucket4j.TimeMeter;
-import com.github.bucket4j.impl.Bandwidth;
-import com.github.bucket4j.impl.BandwidthDefinition;
+import com.github.bucket4j.builder.BandwidthDefinition;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -31,7 +30,7 @@ public final class BucketConfiguration implements Serializable {
     private final Bandwidth[] bandwidths;
     private final TimeMeter timeMeter;
 
-    BucketConfiguration(List<BandwidthDefinition> bandwidthDefinitions, TimeMeter timeMeter) {
+    public BucketConfiguration(List<BandwidthDefinition> bandwidthDefinitions, TimeMeter timeMeter) {
         this.timeMeter = timeMeter;
 
         checkCompatibility(bandwidthDefinitions);

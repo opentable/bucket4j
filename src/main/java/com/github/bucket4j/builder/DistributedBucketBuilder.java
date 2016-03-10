@@ -1,5 +1,6 @@
-package com.github.bucket4j;
+package com.github.bucket4j.builder;
 
+import com.github.bucket4j.Bucket;
 import com.github.bucket4j.impl.grid.GridBucketState;
 import com.github.bucket4j.impl.grid.GridProxy;
 import com.github.bucket4j.statistic.StatisticCollector;
@@ -17,7 +18,7 @@ public interface DistributedBucketBuilder extends BucketBuilder {
 
     BucketBuilder withLocalStatisticCollector(StatisticCollector statisticCollector);
 
-    BucketBuilder withRemoteStatisticCollector(Supplier<StatisticCollector> statisticCollector);
+    <T extends Supplier<StatisticCollector> & Serializable> BucketBuilder withRemoteStatisticCollector(T statisticCollectorSupplier);
 
     /**
      * Constructs an instance of {@link com.github.bucket4j.impl.grid.GridBucket} which responsible to limit rate inside Hazelcast cluster.
@@ -41,7 +42,7 @@ public interface DistributedBucketBuilder extends BucketBuilder {
      *
      * @see com.github.bucket4j.impl.grid.ignite.IgniteProxy
      */
-    Bucket buildIgnite(IgniteCache<Object, GridBucketState> cache, Object key);
+    Bucket buildIgnite(IgniteCache<Object, GridBucketState> cache, Serializable key);
 
     /**
      * Constructs an instance of {@link com.github.bucket4j.impl.grid.GridBucket} which responsible to limit rate inside Oracle Coherence cluster.
@@ -53,7 +54,7 @@ public interface DistributedBucketBuilder extends BucketBuilder {
      *
      * @see com.github.bucket4j.impl.grid.coherence.CoherenceProxy
      */
-    Bucket buildCoherence(NamedCache cache, Object key);
+    Bucket buildCoherence(NamedCache cache, Serializable key);
 
     /**
      * Build distributed bucket for custom grid which is not supported out of the box.
@@ -62,6 +63,6 @@ public interface DistributedBucketBuilder extends BucketBuilder {
      *
      * @see com.github.bucket4j.impl.grid.GridProxy
      */
-    Bucket buildCustomGrid(GridProxy gridProxy);
+    Bucket buildForCustomGrid(GridProxy gridProxy);
 
 }

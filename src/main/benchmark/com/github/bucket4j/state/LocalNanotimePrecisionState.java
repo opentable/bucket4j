@@ -17,7 +17,7 @@
 package com.github.bucket4j.state;
 
 import com.github.bucket4j.Bucket;
-import com.github.bucket4j.BucketBuilder;
+import com.github.bucket4j.builder.BucketBuilder;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 
