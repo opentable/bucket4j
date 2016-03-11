@@ -1,5 +1,9 @@
 package com.github.bucket4j.statistic;
 
+/**
+ * Collects statistics of the bucket working.
+ *
+ */
 public interface StatisticCollector {
 
     void registerConsumedTokens(long numTokens);
@@ -18,6 +22,6 @@ public interface StatisticCollector {
      * @return snapshot of bucket statistic
      * @throws IllegalStateException if statistic collector is not configured for this bucket during construction
      */
-    StatisticSnapshot getStatisticSnapshot();
+    StatisticSnapshot getSnapshot();
 
 }

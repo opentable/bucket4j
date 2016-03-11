@@ -17,10 +17,11 @@ package com.github.bucket4j.impl;
 
 import com.github.bucket4j.Bucket;
 
+import java.text.MessageFormat;
 import java.time.Duration;
-
-import static com.github.bucket4j.impl.BucketExceptions.nonPositiveNanosToWait;
-import static com.github.bucket4j.impl.BucketExceptions.nonPositiveTokensToConsume;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 
 public abstract class AbstractBucket implements Bucket {
 
@@ -35,7 +36,9 @@ public abstract class AbstractBucket implements Bucket {
 
     protected abstract boolean tryConsumeImpl(long tokensToConsume);
 
-    protected abstract long consumeOrAwaitImpl(long tokensToConsume, long waitIfBusyNanos) throws InterruptedException;
+    protected abstract boolean consumeOrAwaitImpl(long tokensToConsume, long waitIfBusyNanos) throws InterruptedException;
+
+    protected abstract void applySnapshotImpl(BucketState bucketState);
 
     /**
      * Returns configuration of bucket.
@@ -59,7 +62,9 @@ public abstract class AbstractBucket implements Bucket {
      *
      * @param snapshot previously snapshot
      */
-    abstract public void applySnapshot(BucketState snapshot);
+    public void applySnapshot(BucketState snapshot) {
+        applySnapshotImpl(Objects.requireNonNull(snapshot));
+    }
 
     @Override
     public boolean tryConsumeSingleToken() {
@@ -67,11 +72,11 @@ public abstract class AbstractBucket implements Bucket {
     }
 
     @Override
-    public boolean tryConsume(long tokensToConsume) {
-        if (tokensToConsume <= 0) {
-            throw nonPositiveTokensToConsume(tokensToConsume);
+    public boolean tryConsume(long tokens) {
+        if (tokens <= 0) {
+            throw nonPositiveTokensToConsume(tokens);
         }
-        return tryConsumeImpl(tokensToConsume);
+        return tryConsumeImpl(tokens);
     }
 
     @Override
@@ -103,8 +108,7 @@ public abstract class AbstractBucket implements Bucket {
             throw nonPositiveNanosToWait(maxWaitNanos);
         }
 
-        long waitedNanos = consumeOrAwaitImpl(tokensToConsume, maxWaitNanos);
-        return waitedNanos >= 0;
+        return consumeOrAwaitImpl(tokensToConsume, maxWaitNanos);
     }
 
     @Override
@@ -118,6 +122,38 @@ public abstract class AbstractBucket implements Bucket {
     @Override
     public long consumeAsMuchAsPossible() {
         return consumeAsMuchAsPossibleImpl(Long.MAX_VALUE);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> tryConsumeSingleToken(Duration maxWaiting, ScheduledExecutorService scheduler) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Boolean> tryConsume(long numTokens, Duration maxWaiting, ScheduledExecutorService scheduler) throws InterruptedException {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Void> consumeSingleTokenAsync(ScheduledExecutorService scheduler) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Void> consumeAsync(long numTokens, ScheduledExecutorService scheduler) {
+        return null;
+    }
+
+    private static IllegalArgumentException nonPositiveTokensToConsume(long tokens) {
+        String pattern = "Unable to consume {0} tokens, due to number of tokens to consume should be positive";
+        String msg = MessageFormat.format(pattern, tokens);
+        return new IllegalArgumentException(msg);
+    }
+
+    private static IllegalArgumentException nonPositiveNanosToWait(long waitIfBusyNanos) {
+        String pattern = "Waiting value should be positive, {0} is wrong waiting period";
+        String msg = MessageFormat.format(pattern, waitIfBusyNanos);
+        return new IllegalArgumentException(msg);
     }
 
 }

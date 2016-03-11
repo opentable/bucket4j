@@ -30,7 +30,7 @@ public class DummyStatisticCollector implements StatisticCollector {
     }
 
     @Override
-    public StatisticSnapshot getStatisticSnapshot() {
+    public StatisticSnapshot getSnapshot() {
         throw new IllegalStateException("Bucket has been configured without statistic-collector.");
     }
 

@@ -28,6 +28,16 @@ import java.util.concurrent.ScheduledExecutorService;
  * If at a cell arrival the content of the bucket is less than or equal to the limit value τ, then the cell is conforming;
  * otherwise, the cell is non-conforming.
  *
+ * <p>Simple example of usage:
+ * <code><pre>
+ * Bucket bucket = Bucket.builder().withBandwidth(100, Duration.ofMinutes(1)).build();
+ * ...
+ * if (bucket.tryConsumeSingleToken()) {
+ *     doSomething();
+ * }
+ * <pre/>
+ * </code>
+ *
  * @see <a href="http://en.wikipedia.org/wiki/Token_bucket">Token Bucket</a>
  * @see <a href="http://en.wikipedia.org/wiki/Leaky_bucket">Leaky Bucket</a>
  * @see <a href="http://en.wikipedia.org/wiki/Generic_cell_rate_algorithm">Generic cell rate algorithm</a>
@@ -35,9 +45,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public interface Bucket {
 
     /**
-     * Creates builder which performs bucket construction for local usage scenario.
-     *
-     * @return
+     * @return builder which performs bucket construction for local usage scenario.
      */
     static LocalBucketBuilder builder() {
         return new LocalBucketBuilderImpl();
@@ -115,7 +123,7 @@ public interface Bucket {
      *
      *
      * @param maxWaiting limit of time which thread can wait.
-     * @param scheduler
+     * @param scheduler it will be used to avoid blocling current execution  thread in case of
      * @return CompletableFuture which represents result
      * @throws InterruptedException in case of current thread has been interrupted during waiting
      */
@@ -178,24 +186,5 @@ public interface Bucket {
      * @return Number of tokens which can be consumed immediately. 0 in case of no tokens available in the bucket
      */
     long getAvailableTokens();
-
-    /**
-     * Returns (previously consumed) tokens to the bucket. This method can be used with transactional semantic in following scenario:
-     * <ol>
-     * <li>Acquire N tokens from bucket.</li>
-     * <li>Do something with transactional resource protected by this bucket.</li>
-     * <li>If something went wrong with the resource, then return back N tokens.</li>
-     * </ol>
-     * <p>
-     * Be careful when using this method, because:
-     * <ul>
-     * <li>Bucket is unable to distinguish case when you are trying to return tokens which were not consumed previously.</li>
-     * <li>Tokens which consumed from guaranteed bandwidth are never returning back to guaranteed bandwidth.</li>
-     * </ul>
-     *
-     * @param numTokens number of tokens which need to return to the bucket
-     * @throws IllegalArgumentException if the number of numTokens to return is negative or zero
-     */
-    void returnTokens(long numTokens);
 
 }

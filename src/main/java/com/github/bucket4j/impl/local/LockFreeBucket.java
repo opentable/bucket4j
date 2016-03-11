@@ -21,6 +21,9 @@ import com.github.bucket4j.impl.Bandwidth;
 import com.github.bucket4j.impl.BucketConfiguration;
 import com.github.bucket4j.impl.BucketState;
 
+import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LockFreeBucket extends AbstractBucket {
@@ -33,6 +36,11 @@ public class LockFreeBucket extends AbstractBucket {
         this.configuration = configuration;
         BucketState initialState = BucketState.createInitialState(configuration);
         this.stateReference = new AtomicReference<>(initialState);
+    }
+
+    @Override
+    public long getAvailableTokens() {
+        return 0;
     }
 
     @Override

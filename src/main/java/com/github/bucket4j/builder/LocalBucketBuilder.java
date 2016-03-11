@@ -4,7 +4,7 @@ import com.github.bucket4j.Bucket;
 import com.github.bucket4j.statistic.StatisticCollector;
 
 /**
- * Created by vladimir.bukhtoyarov on 29.02.2016.
+ * The builder which performs bucket construction for local usage scenario.
  */
 public interface LocalBucketBuilder extends BucketBuilder {
 

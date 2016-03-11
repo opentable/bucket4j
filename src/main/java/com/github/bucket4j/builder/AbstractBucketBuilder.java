@@ -2,6 +2,8 @@ package com.github.bucket4j.builder;
 
 import com.github.bucket4j.*;
 import com.github.bucket4j.impl.BucketConfiguration;
+
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,33 +52,78 @@ public abstract class AbstractBucketBuilder implements BucketBuilder {
     }
 
     @Override
-    public BucketBuilder withLimitedBandwidth(long maxCapacity, Duration period) {
-        return withLimitedBandwidth(maxCapacity, maxCapacity, period);
+    public BucketBuilder withBandwidth(long maxCapacity, Duration period) {
+        return withBandwidth(maxCapacity, maxCapacity, period);
     }
 
     @Override
-    public BucketBuilder withLimitedBandwidth(long maxCapacity, long initialCapacity, Duration period) {
+    public BucketBuilder withBandwidth(long maxCapacity, long initialCapacity, Duration period) {
         final BandwidthDefinition bandwidth = new BandwidthDefinition(maxCapacity, initialCapacity, period, false);
         bandwidths.add(bandwidth);
         return this;
     }
 
     @Override
-    public BucketBuilder withLimitedBandwidth(CapacityFunction capacityFunction, long initialCapacity, Duration period) {
+    public BucketBuilder withBandwidth(CapacityFunction capacityFunction, long initialCapacity, Duration period) {
         final BandwidthDefinition bandwidth = new BandwidthDefinition(capacityFunction, initialCapacity, period, false);
         bandwidths.add(bandwidth);
         return this;
     }
 
-    public BandwidthDefinition getBandwidthDefinition(int index) {
+    private static IllegalArgumentException nonPositiveCapacity(long capacity) {
+        String pattern = "{0} is wrong value for capacity, because capacity should be positive";
+        String msg = MessageFormat.format(pattern, capacity);
+        return new IllegalArgumentException(msg);
+    }
+
+    private static IllegalArgumentException nonPositiveInitialCapacity(long initialCapacity) {
+        String pattern = "{0} is wrong value for initial capacity, because initial capacity should be positive";
+        String msg = MessageFormat.format(pattern, initialCapacity);
+        return new IllegalArgumentException(msg);
+    }
+
+    private static IllegalArgumentException nullBandwidthAdjuster() {
+        String msg = "Bandwidth adjuster can not be null";
+        return new IllegalArgumentException(msg);
+    }
+
+    private static IllegalArgumentException nonPositivePeriod(long period) {
+        String pattern = "{0} is wrong value for period of bandwidth, because period should be positive";
+        String msg = MessageFormat.format(pattern, period);
+        return new IllegalArgumentException(msg);
+    }
+
+    private static IllegalArgumentException restrictionsNotSpecified() {
+        String msg = "At list one limited bandwidth should be specified";
+        return new IllegalArgumentException(msg);
+    }
+
+    private static IllegalArgumentException onlyOneGuarantedBandwidthSupported() {
+        String msg = "Only one guaranteed bandwidth supported";
+        return new IllegalArgumentException(msg);
+    }
+
+    private static IllegalArgumentException guarantedHasGreaterRateThanLimited(BandwidthDefinition guaranteed, BandwidthDefinition limited) {
+        String pattern = "Misconfiguration detected, guaranteed bandwidth {0} has higher rate than limited bandwidth {1}";
+        String msg = MessageFormat.format(pattern, guaranteed, limited);
+        return new IllegalArgumentException(msg);
+    }
+
+    private static IllegalArgumentException hasOverlaps(BandwidthDefinition first, BandwidthDefinition second) {
+        String pattern = "Overlap detected between {0} and {1}";
+        String msg = MessageFormat.format(pattern, first, second);
+        return new IllegalArgumentException(msg);
+    }
+
+    private BandwidthDefinition getBandwidthDefinition(int index) {
         return bandwidths.get(index);
     }
 
-    public BucketConfiguration createConfiguration() {
+    private BucketConfiguration createConfiguration() {
         return new BucketConfiguration(this.bandwidths, timeMeter);
     }
 
-    public TimeMeter getTimeMeter() {
+    private TimeMeter getTimeMeter() {
         return timeMeter;
     }
 

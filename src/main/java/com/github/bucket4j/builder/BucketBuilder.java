@@ -136,7 +136,7 @@ public interface BucketBuilder {
      * <pre>
      * {@code
      * // Adds bandwidth that restricts to consume not often 1 tokens per 10 minutes,
-     * builder.withLimitedBandwidth(1, TimeUnit.MINUTES, 10);
+     * builder.withBandwidth(1, TimeUnit.MINUTES, 10);
      * }
      * </pre>
      *
@@ -145,7 +145,7 @@ public interface BucketBuilder {
      * @param period Period of bandwidth.
      *
      */
-    BucketBuilder withLimitedBandwidth(long maxCapacity, Duration period);
+    BucketBuilder withBandwidth(long maxCapacity, Duration period);
 
     /**
      * Adds limited bandwidth for all buckets which will be constructed by this builder instance.
@@ -158,7 +158,7 @@ public interface BucketBuilder {
      * <pre>
      * {@code
      * // Adds bandwidth that restricts to consume not often 1 tokens per 10 minutes, and initial capacity 0.
-     * builder.withLimitedBandwidth(1, TimeUnit.MINUTES, 10, 0);
+     * builder.withBandwidth(1, TimeUnit.MINUTES, 10, 0);
      * }
      * </pre>
      *
@@ -167,7 +167,7 @@ public interface BucketBuilder {
      * @param period Period of bandwidth.
      *
      */
-    BucketBuilder withLimitedBandwidth(long maxCapacity, long initialCapacity, Duration period);
+    BucketBuilder withBandwidth(long maxCapacity, long initialCapacity, Duration period);
 
     /**
      * Adds limited bandwidth for all buckets which will be constructed by this builder instance.
@@ -182,6 +182,6 @@ public interface BucketBuilder {
      * @param period Period of bandwidth.
      *
      */
-    BucketBuilder withLimitedBandwidth(CapacityFunction capacityFunction, long initialCapacity, Duration period);
+    BucketBuilder withBandwidth(CapacityFunction capacityFunction, long initialCapacity, Duration period);
 
 }

@@ -33,7 +33,7 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
     @Unroll
     def "Should detect that capacity #capacity is wrong"(long capacity) {
         when:
-            forNanosecondPrecision().withLimitedBandwidth(capacity, Duration.ofMinutes(VALID_PERIOD))
+            forNanosecondPrecision().withBandwidth(capacity, Duration.ofMinutes(VALID_PERIOD))
         then:
             IllegalArgumentException ex = thrown()
             ex.message == nonPositiveCapacity(capacity).message
@@ -44,7 +44,7 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
     @Unroll
     def "Should detect that initial capacity #initialCapacity is wrong"(long initialCapacity) {
         when:
-            forNanosecondPrecision().withLimitedBandwidth(VALID_CAPACITY, initialCapacity, Duration.ofMinutes(VALID_PERIOD))
+            forNanosecondPrecision().withBandwidth(VALID_CAPACITY, initialCapacity, Duration.ofMinutes(VALID_PERIOD))
         then:
             IllegalArgumentException ex = thrown()
             ex.message == nonPositiveInitialCapacity(initialCapacity).message
@@ -55,7 +55,7 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
     @Unroll
     def "Should check that #period is invalid period of bandwidth"(long period) {
         when:
-            forNanosecondPrecision().withLimitedBandwidth(VALID_CAPACITY, Duration.ofMinutes(period))
+            forNanosecondPrecision().withBandwidth(VALID_CAPACITY, Duration.ofMinutes(period))
         then:
             IllegalArgumentException ex = thrown()
             ex.message == nonPositivePeriod(Duration.ofMinutes(period).toNanos()).message
@@ -65,7 +65,7 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
 
     def "Should check that bandwidth adjuster is not null"() {
         when:
-            forNanosecondPrecision().withLimitedBandwidth(null, VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
+            forNanosecondPrecision().withBandwidth(null, VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
         then:
             IllegalArgumentException ex = thrown()
             ex.message == nullBandwidthAdjuster().message
@@ -98,7 +98,7 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
     def "Should check that guaranteed capacity could not be configured twice"() {
         setup:
             def builder = forNanosecondPrecision()
-                .withLimitedBandwidth(VALID_CAPACITY * 2, Duration.ofMinutes(VALID_PERIOD))
+                .withBandwidth(VALID_CAPACITY * 2, Duration.ofMinutes(VALID_PERIOD))
                 .withGuaranteedBandwidth(VALID_CAPACITY + 1, Duration.ofMinutes(VALID_PERIOD))
                 .withGuaranteedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
         when:
@@ -111,16 +111,16 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
     def "Should check that guaranteed bandwidth has lesser rate than limited bandwidth"() {
         setup:
             def builder1 = forNanosecondPrecision()
-                .withLimitedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
+                .withBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
                 .withGuaranteedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
             def builder2 = forNanosecondPrecision()
                 .withGuaranteedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
-                .withLimitedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
+                .withBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
             def builder3 = forNanosecondPrecision()
-                .withLimitedBandwidth(new FunctionMock(VALID_CAPACITY), 0, Duration.ofMinutes(VALID_PERIOD))
+                .withBandwidth(new FunctionMock(VALID_CAPACITY), 0, Duration.ofMinutes(VALID_PERIOD))
                 .withGuaranteedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
             def builder4 = forNanosecondPrecision()
-                .withLimitedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
+                .withBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD))
                 .withGuaranteedBandwidth(new FunctionMock(VALID_CAPACITY), 0, Duration.ofMinutes(VALID_PERIOD))
         when:
             builder1.build()
@@ -146,14 +146,14 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
     def "Should check for overlaps, test #number"(int number, long firstCapacity, long firstPeriod, long secondCapacity, long secondPeriod) {
         setup:
             def builderWithStaticCapacity = forNanosecondPrecision()
-                .withLimitedBandwidth(firstCapacity, Duration.ofMinutes(firstPeriod))
-                .withLimitedBandwidth(secondCapacity, Duration.ofMinutes(secondPeriod))
+                .withBandwidth(firstCapacity, Duration.ofMinutes(firstPeriod))
+                .withBandwidth(secondCapacity, Duration.ofMinutes(secondPeriod))
             def builderWithDynamicCapacity1 = forNanosecondPrecision()
-                .withLimitedBandwidth(new FunctionMock(firstCapacity), 0, Duration.ofMinutes(firstPeriod))
-                .withLimitedBandwidth(secondCapacity, Duration.ofMinutes(secondPeriod))
+                .withBandwidth(new FunctionMock(firstCapacity), 0, Duration.ofMinutes(firstPeriod))
+                .withBandwidth(secondCapacity, Duration.ofMinutes(secondPeriod))
             def builderWithDynamicCapacity2 = forNanosecondPrecision()
-                .withLimitedBandwidth(firstCapacity, Duration.ofMinutes(firstPeriod))
-                .withLimitedBandwidth(new FunctionMock(secondCapacity), 0, Duration.ofMinutes(secondPeriod))
+                .withBandwidth(firstCapacity, Duration.ofMinutes(firstPeriod))
+                .withBandwidth(new FunctionMock(secondCapacity), 0, Duration.ofMinutes(secondPeriod))
         when:
             builderWithStaticCapacity.build()
         then:
@@ -180,7 +180,7 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
 
     def "Should check that tokens to consume should be positive"() {
         setup:
-            def bucket = forNanosecondPrecision().withLimitedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD)).build()
+            def bucket = forNanosecondPrecision().withBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD)).build()
         when:
             bucket.consume(0)
         then:
@@ -232,7 +232,7 @@ public class DetectionOfIllegalApiUsageSpecification extends Specification {
 
     def "Should check that time units to wait should be positive"() {
         setup:
-            def bucket = forNanosecondPrecision().withLimitedBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD)).build()
+            def bucket = forNanosecondPrecision().withBandwidth(VALID_CAPACITY, Duration.ofMinutes(VALID_PERIOD)).build()
         when:
             bucket.tryConsumeSingleToken(0)
         then:
