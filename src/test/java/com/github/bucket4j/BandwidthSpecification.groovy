@@ -77,7 +77,7 @@ class BandwidthSpecification extends Specification {
     }
 
     private Bandwidth bandwidth(long capacity, long initialCapacity, long period) {
-        return new Bandwidth(new CapacityFunction.ImmutableCapacity(capacity), initialCapacity, period, false);
+        return new Bandwidth(new Capacity.ImmutableCapacity(capacity), initialCapacity, period, false);
     }
 
 }

@@ -16,13 +16,14 @@
 
 package com.github.bucket4j.impl.grid;
 
+import com.github.bucket4j.impl.BucketConfiguration;
 import com.github.bucket4j.impl.BucketState;
 
 public class CreateSnapshotCommand implements GridCommand<BucketState> {
 
     @Override
-    public BucketState execute(GridBucketState gridState) {
-        return gridState.getBucketState().clone();
+    public BucketState execute(BucketState state, BucketConfiguration configuration) {
+        return state.clone();
     }
 
     @Override

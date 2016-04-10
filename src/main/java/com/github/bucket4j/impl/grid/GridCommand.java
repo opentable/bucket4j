@@ -16,11 +16,14 @@
 
 package com.github.bucket4j.impl.grid;
 
+import com.github.bucket4j.impl.BucketConfiguration;
+import com.github.bucket4j.impl.BucketState;
+
 import java.io.Serializable;
 
 public interface GridCommand<T extends Serializable> extends Serializable {
 
-    T execute(GridBucketState state);
+    T execute(BucketState state, BucketConfiguration configuration);
 
     boolean isBucketStateModified();
 

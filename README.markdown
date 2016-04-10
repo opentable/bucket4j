@@ -191,9 +191,9 @@ Sometimes, you may want to have a bucket with dynamic capacity. For example if y
 and 2 per minute for nightly time, then construct bucket like this
 
 ```java 
-BandwidthAdjuster adjuster = new BandwidthAdjuster() {
+BandwidthAdjuster capacity = new BandwidthAdjuster() {
     @Override
-    public long getCapacity(long currentTime) {
+    public long getMaxValue(long currentTime) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(currentTime);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -205,7 +205,7 @@ BandwidthAdjuster adjuster = new BandwidthAdjuster() {
     }
 };
 BucketBuilder.withMillisTimePrecision()
-    .withLimitedBandwidth(adjuster, 10, Duration.ofMinutes(1));
+    .withLimitedBandwidth(capacity, 10, Duration.ofMinutes(1));
 ```
 
 #### Customizing time measurement 

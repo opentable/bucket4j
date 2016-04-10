@@ -21,9 +21,6 @@ import com.github.bucket4j.impl.Bandwidth;
 import com.github.bucket4j.impl.BucketConfiguration;
 import com.github.bucket4j.impl.BucketState;
 
-import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LockFreeBucket extends AbstractBucket {
@@ -138,6 +135,11 @@ public class LockFreeBucket extends AbstractBucket {
             }
             configuration.getTimeMeter().parkNanos(nanosToCloseDeficit);
         }
+    }
+
+    @Override
+    protected void applySnapshotImpl(BucketState bucketState) {
+        stateReference.set(bucketState);
     }
 
     @Override

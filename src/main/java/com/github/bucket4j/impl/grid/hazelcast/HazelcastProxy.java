@@ -16,7 +16,6 @@
 
 package com.github.bucket4j.impl.grid.hazelcast;
 
-import com.github.bucket4j.impl.grid.GridBucketState;
 import com.github.bucket4j.impl.grid.GridCommand;
 import com.github.bucket4j.impl.grid.GridProxy;
 import com.hazelcast.core.IMap;

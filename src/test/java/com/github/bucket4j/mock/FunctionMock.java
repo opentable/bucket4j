@@ -16,9 +16,9 @@
 
 package com.github.bucket4j.mock;
 
-import com.github.bucket4j.CapacityFunction;
+import com.github.bucket4j.Capacity;
 
-public class FunctionMock implements CapacityFunction {
+public class FunctionMock implements Capacity {
 
     private long capacity = 0;
 

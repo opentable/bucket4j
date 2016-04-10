@@ -23,7 +23,7 @@ public class BucketState implements Serializable {
 
     // the first element of array represents last getNewSize timestamp in nanos,
     // next elements represent bandwidth current size
-    private final double[] state;
+    //private final double[] state;
 
     private BucketState(double[] state) {
         this.state = state;
@@ -41,10 +41,10 @@ public class BucketState implements Serializable {
     public static BucketState createInitialState(BucketConfiguration configuration) {
         Bandwidth[] bandwidths = configuration.getBandwidths();
         double state[] = new double[bandwidths.length + 1];
-        for(int i = 0; i < bandwidths.length; i++) {
-            state[i + 1] = bandwidths[i].getInitialCapacity();
-        }
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
+        for(int i = 0; i < bandwidths.length; i++) {
+            state[i + 1] = bandwidths[i].getCapacity().getInitialValue(currentTimeNanos);
+        }
         BucketState bucketState = new BucketState(state);
         bucketState.setLastRefillTime(currentTimeNanos);
         return bucketState;

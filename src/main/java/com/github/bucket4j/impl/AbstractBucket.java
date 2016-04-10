@@ -36,6 +36,8 @@ public abstract class AbstractBucket implements Bucket {
 
     protected abstract boolean tryConsumeImpl(long tokensToConsume);
 
+    protected abstract CompletableFuture<Boolean> tryConsumeAsyncImpl(long numTokens, long maxWaitNanos, ScheduledExecutorService scheduler);
+
     protected abstract boolean consumeOrAwaitImpl(long tokensToConsume, long waitIfBusyNanos) throws InterruptedException;
 
     protected abstract void applySnapshotImpl(BucketState bucketState);
@@ -85,11 +87,11 @@ public abstract class AbstractBucket implements Bucket {
     }
 
     @Override
-    public void consume(long tokensToConsume) throws InterruptedException {
-        if (tokensToConsume <= 0) {
-            throw nonPositiveTokensToConsume(tokensToConsume);
+    public void consume(long numTokens) throws InterruptedException {
+        if (numTokens <= 0) {
+            throw nonPositiveTokensToConsume(numTokens);
         }
-        consumeOrAwaitImpl(tokensToConsume, UNSPECIFIED_WAITING_LIMIT);
+        consumeOrAwaitImpl(numTokens, UNSPECIFIED_WAITING_LIMIT);
     }
 
     @Override
@@ -98,17 +100,17 @@ public abstract class AbstractBucket implements Bucket {
     }
 
     @Override
-    public boolean tryConsume(long tokensToConsume, Duration maxWaiting) throws InterruptedException {
+    public boolean tryConsume(long numTokens, Duration maxWaiting) throws InterruptedException {
         long maxWaitNanos = maxWaiting.toNanos();
-        if (tokensToConsume <= 0) {
-            throw nonPositiveTokensToConsume(tokensToConsume);
+        if (numTokens <= 0) {
+            throw nonPositiveTokensToConsume(numTokens);
         }
 
         if (maxWaitNanos <= 0) {
             throw nonPositiveNanosToWait(maxWaitNanos);
         }
 
-        return consumeOrAwaitImpl(tokensToConsume, maxWaitNanos);
+        return consumeOrAwaitImpl(numTokens, maxWaitNanos);
     }
 
     @Override
@@ -126,22 +128,32 @@ public abstract class AbstractBucket implements Bucket {
 
     @Override
     public CompletableFuture<Boolean> tryConsumeSingleToken(Duration maxWaiting, ScheduledExecutorService scheduler) {
-        return null;
+        return tryConsume(1, maxWaiting, scheduler);
     }
 
     @Override
-    public CompletableFuture<Boolean> tryConsume(long numTokens, Duration maxWaiting, ScheduledExecutorService scheduler) throws InterruptedException {
-        return null;
+    public CompletableFuture<Boolean> tryConsume(long numTokens, Duration maxWaiting, ScheduledExecutorService scheduler) {
+        long maxWaitNanos = maxWaiting.toNanos();
+        if (numTokens <= 0) {
+            throw nonPositiveTokensToConsume(numTokens);
+        }
+        if (maxWaitNanos <= 0) {
+            throw nonPositiveNanosToWait(maxWaitNanos);
+        }
+        return tryConsumeAsyncImpl(numTokens, maxWaitNanos, scheduler);
     }
 
     @Override
     public CompletableFuture<Void> consumeSingleTokenAsync(ScheduledExecutorService scheduler) {
-        return null;
+        return consumeAsync(1, scheduler);
     }
 
     @Override
     public CompletableFuture<Void> consumeAsync(long numTokens, ScheduledExecutorService scheduler) {
-        return null;
+        if (numTokens <= 0) {
+            throw nonPositiveTokensToConsume(numTokens);
+        }
+        return tryConsumeAsyncImpl(numTokens, UNSPECIFIED_WAITING_LIMIT, scheduler).thenApply(bool -> null);
     }
 
     private static IllegalArgumentException nonPositiveTokensToConsume(long tokens) {

@@ -17,7 +17,6 @@
 package com.github.bucket4j.impl.grid.hazelcast;
 
 import com.github.bucket4j.impl.BucketState;
-import com.github.bucket4j.impl.grid.GridBucketState;
 import com.hazelcast.map.EntryBackupProcessor;
 
 import java.io.Serializable;

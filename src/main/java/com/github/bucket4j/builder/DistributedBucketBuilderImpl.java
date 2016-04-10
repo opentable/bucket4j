@@ -2,8 +2,8 @@ package com.github.bucket4j.builder;
 
 import com.github.bucket4j.Bucket;
 import com.github.bucket4j.impl.BucketConfiguration;
+import com.github.bucket4j.impl.BucketState;
 import com.github.bucket4j.impl.grid.GridBucket;
-import com.github.bucket4j.impl.grid.GridBucketState;
 import com.github.bucket4j.impl.grid.GridProxy;
 import com.github.bucket4j.impl.grid.coherence.CoherenceProxy;
 import com.github.bucket4j.impl.grid.hazelcast.HazelcastProxy;
@@ -31,13 +31,13 @@ public class DistributedBucketBuilderImpl extends AbstractBucketBuilder implemen
     }
 
     @Override
-    public Bucket buildHazelcast(IMap<Object, GridBucketState> imap, Serializable key) {
+    public Bucket buildHazelcast(IMap<Object, BucketState> imap, Serializable key) {
         BucketConfiguration configuration = createConfiguration();
         return new GridBucket(configuration, new HazelcastProxy(imap, key));
     }
 
     @Override
-    public Bucket buildIgnite(IgniteCache<Object, GridBucketState> cache, Serializable key) {
+    public Bucket buildIgnite(IgniteCache<Object, BucketState> cache, Serializable key) {
         BucketConfiguration configuration = createConfiguration();
         return new GridBucket(configuration, new IgniteProxy(cache, key));
     }

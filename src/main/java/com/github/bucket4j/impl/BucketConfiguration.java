@@ -17,116 +17,41 @@
 package com.github.bucket4j.impl;
 
 import com.github.bucket4j.TimeMeter;
-import com.github.bucket4j.builder.BandwidthDefinition;
+import com.github.bucket4j.impl.Bandwidth;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.List;
-
-import static com.github.bucket4j.impl.BucketExceptions.*;
+import java.util.Objects;
 
 public final class BucketConfiguration implements Serializable {
 
-    private final Bandwidth[] bandwidths;
+    private final Bandwidth[] limitedBandwidths;
+    private final Bandwidth guaranteedBandwidth;
     private final TimeMeter timeMeter;
 
-    public BucketConfiguration(List<BandwidthDefinition> bandwidthDefinitions, TimeMeter timeMeter) {
-        this.timeMeter = timeMeter;
-
-        checkCompatibility(bandwidthDefinitions);
-
-        this.bandwidths = new Bandwidth[bandwidthDefinitions.size()];
-        for (int i = 0; i < bandwidthDefinitions.size() ; i++) {
-            BandwidthDefinition definition = bandwidthDefinitions.get(i);
-            Bandwidth bandwidth = definition.createBandwidth();
-            this.bandwidths[i] = bandwidth;
-        }
+    public BucketConfiguration(Bandwidth[] limitedBandwidths, Bandwidth guaranteedBandwidth, TimeMeter timeMeter) {
+        this.timeMeter = Objects.requireNonNull(timeMeter);
+        this.limitedBandwidths = Objects.requireNonNull(limitedBandwidths);
+        this.guaranteedBandwidth = guaranteedBandwidth;
     }
 
     public TimeMeter getTimeMeter() {
         return timeMeter;
     }
 
-    public Bandwidth[] getBandwidths() {
-        return bandwidths;
+    public Bandwidth[] getLimitedBandwidths() {
+        return limitedBandwidths;
     }
 
-    public Bandwidth getBandwidth(int index) {
-        return bandwidths[index];
-    }
-
-    public static void checkCompatibility(List<BandwidthDefinition> bandwidths) {
-        int countOfLimitedBandwidth = 0;
-        int countOfGuaranteedBandwidth = 0;
-        BandwidthDefinition guaranteedBandwidth = null;
-
-        for (BandwidthDefinition bandwidth : bandwidths) {
-            if (bandwidth.limited) {
-                countOfLimitedBandwidth++;
-            } else {
-                guaranteedBandwidth = bandwidth;
-                countOfGuaranteedBandwidth++;
-            }
-        }
-
-        if (countOfLimitedBandwidth == 0) {
-            throw restrictionsNotSpecified();
-        }
-
-        if (countOfGuaranteedBandwidth > 1) {
-            throw onlyOneGuarantedBandwidthSupported();
-        }
-
-        for (int i = 0; i < bandwidths.size() - 1; i++) {
-            BandwidthDefinition first = bandwidths.get(i);
-            if (first.guaranteed) {
-                continue;
-            }
-            if (first.hasDynamicCapacity()) {
-                continue;
-            }
-            for (int j = i + 1; j < bandwidths.size(); j++) {
-                BandwidthDefinition second = bandwidths.get(j);
-                if (second.guaranteed) {
-                    continue;
-                }
-                if (second.hasDynamicCapacity()) {
-                    continue;
-                }
-                if (first.periodNanos < second.periodNanos && first.capacity >= second.capacity) {
-                    throw hasOverlaps(first, second);
-                } else if (first.periodNanos == second.periodNanos) {
-                    throw hasOverlaps(first, second);
-                } else if (first.periodNanos > second.periodNanos && first.capacity <= second.capacity) {
-                    throw hasOverlaps(first, second);
-                }
-            }
-        }
-
-        if (guaranteedBandwidth != null) {
-            if (guaranteedBandwidth.hasDynamicCapacity()) {
-                return;
-            }
-            for (BandwidthDefinition bandwidth : bandwidths) {
-                if (bandwidth.guaranteed) {
-                    continue;
-                }
-                if (bandwidth.hasDynamicCapacity()) {
-                    continue;
-                }
-                BandwidthDefinition limited = bandwidth;
-                if (limited.getTokensPerTimeUnit() <= guaranteedBandwidth.getTokensPerTimeUnit()
-                        || limited.getTimeUnitsPerToken() > guaranteedBandwidth.getTimeUnitsPerToken()) {
-                    throw guarantedHasGreaterRateThanLimited(guaranteedBandwidth, limited);
-                }
-            }
-        }
+    public Bandwidth getGuaranteedBandwidth() {
+        return guaranteedBandwidth;
     }
 
     @Override
     public String toString() {
         return "BucketConfiguration{" +
-                "bandwidths=" + Arrays.toString(bandwidths) +
+                "limitedBandwidths=" + Arrays.toString(limitedBandwidths) +
+                ", guaranteedBandwidth=" + guaranteedBandwidth +
                 ", timeMeter=" + timeMeter +
                 '}';
     }

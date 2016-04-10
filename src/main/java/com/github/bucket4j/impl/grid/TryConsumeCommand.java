@@ -30,9 +30,7 @@ public class TryConsumeCommand implements GridCommand<Boolean> {
     }
 
     @Override
-    public Boolean execute(GridBucketState gridState) {
-        BucketConfiguration configuration = gridState.getBucketConfiguration();
-        BucketState state = gridState.getBucketState();
+    public Boolean execute(BucketState state, BucketConfiguration configuration) {
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
         Bandwidth[] bandwidths = configuration.getBandwidths();
         state.refill(bandwidths, currentTimeNanos);

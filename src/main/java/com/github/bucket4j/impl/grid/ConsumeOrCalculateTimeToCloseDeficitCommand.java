@@ -30,9 +30,7 @@ public class ConsumeOrCalculateTimeToCloseDeficitCommand implements GridCommand<
     }
 
     @Override
-    public Long execute(GridBucketState gridState) {
-        BucketConfiguration configuration = gridState.getBucketConfiguration();
-        BucketState state = gridState.getBucketState();
+    public Long execute(BucketState state, BucketConfiguration configuration) {
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
         Bandwidth[] bandwidths = configuration.getBandwidths();
         state.refill(bandwidths, currentTimeNanos);

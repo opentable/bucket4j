@@ -16,20 +16,28 @@
 
 package com.github.bucket4j.impl;
 
-import com.github.bucket4j.CapacityFunction;
+import com.github.bucket4j.Capacity;
+import com.github.bucket4j.RefillStrategy;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.Objects;
+import java.util.concurrent.ForkJoinPool;
 
 public class Bandwidth implements Serializable {
 
-    private final long initialCapacity;
-    private final long periodNanos;
-    private final boolean guaranteed;
-    private final CapacityFunction adjuster;
+    final long periodNanos;
+    final boolean guaranteed;
+    final Capacity capacity;
+    final RefillStrategy refillStrategy;
 
-    public Bandwidth(CapacityFunction adjuster, long initialCapacity, long periodNanos, boolean guaranteed) {
-        this.adjuster = adjuster;
-        this.initialCapacity = initialCapacity;
+    public Bandwidth(Capacity capacity, RefillStrategy refillStrategy, long periodNanos, boolean guaranteed) {
+        this.capacity = Objects.requireNonNull(capacity);
+        if (periodNanos <= 0) {
+            String pattern = "{0} is wrong value for period of bandwidth, because period should be positive";
+            String msg = MessageFormat.format(pattern, periodNanos);
+            throw new IllegalArgumentException(msg);
+        }
         this.periodNanos = periodNanos;
         this.guaranteed = guaranteed;
     }
@@ -42,23 +50,27 @@ public class Bandwidth implements Serializable {
         return !guaranteed;
     }
 
-    public long getInitialCapacity() {
-        return initialCapacity;
+    public long getPeriodNanos() {
+        return periodNanos;
+    }
+
+    public Capacity getCapacity() {
+        return capacity;
     }
 
     public double getNewSize(double currentSize, long previousRefillNanos, long currentTimeNanos) {
         long durationSinceLastRefillNanos = currentTimeNanos - previousRefillNanos;
-        final double maxCapacity = adjuster.getCapacity(currentTimeNanos);
+        final double maxCapacity = capacity.getMaxValue(currentTimeNanos);
         double refill = maxCapacity * durationSinceLastRefillNanos / periodNanos;
         double newSize = currentSize + refill;
         return Math.min(newSize, maxCapacity);
     }
 
-    public long delayNanosAfterWillBePossibleToConsume(double currentSize, long currentTimeNanos, double tokens) {
+    public long delayNanosAfterWillBePossibleToConsume(Bandwidth bandwidth, double currentSize, long currentTimeNanos, double tokens) {
         if (tokens <= currentSize) {
             return 0;
         }
-        final double maxCapacity = getMaxCapacity(currentTimeNanos);
+        final double maxCapacity = capacity.getMaxValue(currentTimeNanos);
         if (tokens > maxCapacity) {
             return Long.MAX_VALUE;
         }
@@ -67,18 +79,33 @@ public class Bandwidth implements Serializable {
         return (long) nanosToCloseDeficit;
     }
 
-    public double getMaxCapacity(long currentTime) {
-        return adjuster.getCapacity(currentTime);
-    }
-
     @Override
     public String toString() {
         return "Bandwidth{" +
-                "initialCapacity=" + initialCapacity +
                 ", periodNanos=" + periodNanos +
                 ", guaranteed=" + guaranteed +
-                ", adjuster=" + adjuster +
+                ", capacity=" + capacity +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Bandwidth bandwidth = (Bandwidth) o;
+
+        if (periodNanos != bandwidth.periodNanos) return false;
+        if (guaranteed != bandwidth.guaranteed) return false;
+        return capacity.equals(bandwidth.capacity);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (periodNanos ^ (periodNanos >>> 32));
+        result = 31 * result + (guaranteed ? 1 : 0);
+        result = 31 * result + capacity.hashCode();
+        return result;
     }
 
 }

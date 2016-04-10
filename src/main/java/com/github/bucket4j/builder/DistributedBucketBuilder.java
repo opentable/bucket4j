@@ -1,7 +1,7 @@
 package com.github.bucket4j.builder;
 
 import com.github.bucket4j.Bucket;
-import com.github.bucket4j.impl.grid.GridBucketState;
+import com.github.bucket4j.impl.BucketState;
 import com.github.bucket4j.impl.grid.GridProxy;
 import com.github.bucket4j.statistic.StatisticCollector;
 import com.hazelcast.core.IMap;
@@ -30,7 +30,7 @@ public interface DistributedBucketBuilder extends BucketBuilder {
      *
      * @see com.github.bucket4j.impl.grid.hazelcast.HazelcastProxy
      */
-    Bucket buildHazelcast(IMap<Object, GridBucketState> imap, Serializable key);
+    Bucket buildHazelcast(IMap<Object, BucketState> imap, Serializable key);
 
     /**
      * Constructs an instance of {@link com.github.bucket4j.impl.grid.GridBucket} which responsible to limit rate inside Apache Ignite(GridGain) cluster.
@@ -42,7 +42,7 @@ public interface DistributedBucketBuilder extends BucketBuilder {
      *
      * @see com.github.bucket4j.impl.grid.ignite.IgniteProxy
      */
-    Bucket buildIgnite(IgniteCache<Object, GridBucketState> cache, Serializable key);
+    Bucket buildIgnite(IgniteCache<Object, BucketState> cache, Serializable key);
 
     /**
      * Constructs an instance of {@link com.github.bucket4j.impl.grid.GridBucket} which responsible to limit rate inside Oracle Coherence cluster.
