@@ -17,8 +17,8 @@
 package com.github.bucket4j
 
 import com.github.bucket4j.builder.BucketBuilder
-import com.github.bucket4j.impl.SmoothlyRefillingBandwidthBandwidth
-import com.github.bucket4j.impl.BucketState
+import com.github.bucket4j.common.SmoothlyRenewableBandwidthState
+import com.github.bucket4j.common.BucketState
 import com.github.bucket4j.mock.TimeMeterMock
 import spock.lang.Specification
 
@@ -31,7 +31,7 @@ class BucketStateSpecification extends Specification {
 
     def "GetAvailableTokens specification"(long requiredAvailableTokens, Bucket bucket) {
         setup:
-            SmoothlyRefillingBandwidthBandwidth[] bandwidths = bucket.configuration.bandwidths
+            SmoothlyRenewableBandwidthState[] bandwidths = bucket.configuration.bandwidths
             BucketState state = bucket.getStateSnapshot()
         when:
             long availableTokens = state.getAvailableTokens(bandwidths)
@@ -49,7 +49,7 @@ class BucketStateSpecification extends Specification {
 
     def "delayAfterWillBePossibleToConsume specification"(long toConsume, long requiredTime, Bucket bucket) {
         setup:
-            SmoothlyRefillingBandwidthBandwidth[] bandwidths = bucket.configuration.bandwidths
+            SmoothlyRenewableBandwidthState[] bandwidths = bucket.configuration.bandwidths
             BucketState state = bucket.getStateSnapshot()
         when:
             long actualTime = state.delayNanosAfterWillBePossibleToConsume(bandwidths, 0, toConsume)

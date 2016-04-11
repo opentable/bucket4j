@@ -1,4 +1,4 @@
-package com.github.bucket4j;
+package com.github.bucket4j.common;
 
 interface State {
 
@@ -9,5 +9,9 @@ interface State {
     void setDouble(int offset, double value);
 
     void setLong(int partialStateIndex, int offset, long value);
+
+    int allocate(double[] array);
+
+    int allocate(long[] array);
 
 }

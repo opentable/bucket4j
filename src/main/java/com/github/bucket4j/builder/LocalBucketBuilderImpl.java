@@ -1,7 +1,7 @@
 package com.github.bucket4j.builder;
 
 import com.github.bucket4j.Bucket;
-import com.github.bucket4j.impl.BucketConfiguration;
+import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.impl.local.LockFreeBucket;
 import com.github.bucket4j.statistic.DummyStatisticCollector;
 import com.github.bucket4j.statistic.StatisticCollector;

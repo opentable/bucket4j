@@ -16,9 +16,7 @@
 
 package com.github.bucket4j.mock;
 
-import com.github.bucket4j.TimeMeter;
-
-import java.util.concurrent.TimeUnit;
+import com.github.bucket4j.common.TimeMeter;
 
 /**
  * Created by vladimir.bukhtoyarov on 09.04.2015.

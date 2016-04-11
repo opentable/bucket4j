@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.github.bucket4j.impl.local;
+package com.github.bucket4j.local;
 
 
-import com.github.bucket4j.impl.AbstractBucket;
-import com.github.bucket4j.impl.SmoothlyRefillingBandwidthBandwidth;
-import com.github.bucket4j.impl.BucketConfiguration;
-import com.github.bucket4j.impl.BucketState;
+import com.github.bucket4j.common.AbstractBucket;
+import com.github.bucket4j.common.SmoothlyRenewableBandwidthState;
+import com.github.bucket4j.common.BucketConfiguration;
+import com.github.bucket4j.common.BucketState;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -44,7 +44,7 @@ public class LockFreeBucket extends AbstractBucket {
     protected long consumeAsMuchAsPossibleImpl(long limit) {
         BucketState previousState = stateReference.get();
         BucketState newState = previousState.clone();
-        SmoothlyRefillingBandwidthBandwidth[] bandwidths = configuration.getBandwidths();
+        SmoothlyRenewableBandwidthState[] bandwidths = configuration.getBandwidths();
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
 
         while (true) {
@@ -68,7 +68,7 @@ public class LockFreeBucket extends AbstractBucket {
     protected boolean tryConsumeImpl(long tokensToConsume) {
         BucketState previousState = stateReference.get();
         BucketState newState = previousState.clone();
-        SmoothlyRefillingBandwidthBandwidth[] bandwidths = configuration.getBandwidths();
+        SmoothlyRenewableBandwidthState[] bandwidths = configuration.getBandwidths();
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
 
         while (true) {
@@ -89,7 +89,7 @@ public class LockFreeBucket extends AbstractBucket {
 
     @Override
     protected boolean consumeOrAwaitImpl(long tokensToConsume, long waitIfBusyTimeLimit) throws InterruptedException {
-        SmoothlyRefillingBandwidthBandwidth[] bandwidths = configuration.getBandwidths();
+        SmoothlyRenewableBandwidthState[] bandwidths = configuration.getBandwidths();
         boolean isWaitingLimited = waitIfBusyTimeLimit > 0;
 
         final long methodStartTimeNanos = configuration.getTimeMeter().currentTimeNanos();

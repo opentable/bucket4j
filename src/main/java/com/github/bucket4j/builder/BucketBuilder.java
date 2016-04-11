@@ -16,38 +16,16 @@
 
 package com.github.bucket4j.builder;
 
-import com.github.bucket4j.*;
+import com.github.bucket4j.common.Bandwidth;
+import com.github.bucket4j.common.TimeMeter;
 
 /**
  * A builder for buckets. Builder can be reused, i.e. one builder can create multiple buckets with similar configuration.
  *
  * @see com.github.bucket4j.impl.local.LockFreeBucket
- * @see com.github.bucket4j.impl.grid.GridBucket
+ * @see com.github.bucket4j.grid.GridBucket
  */
 public interface BucketBuilder {
-
-    /**
-     * Configures {@link com.github.bucket4j.TimeMeter#SYSTEM_MILLISECONDS} as time meter.
-     *
-     * @return
-     */
-    BucketBuilder withMillisecondPrecision();
-
-    /**
-     * Configures {@link com.github.bucket4j.TimeMeter#SYSTEM_NANOTIME} as time meter.
-     *
-     * @return
-     */
-    BucketBuilder withNanosecondPrecision();
-
-    /**
-     * Configures {@code customTimeMeter} as time meter.
-     *
-     * @param customTimeMeter object which will measure time.
-     *
-     * @return
-     */
-    BucketBuilder withCustomTimeMeter(TimeMeter customTimeMeter);
 
     /**
      * Adds limited bandwidth for all buckets which will be constructed by this builder instance.
@@ -55,9 +33,10 @@ public interface BucketBuilder {
      * You can specify as many limited bandwidth as needed.
      *
      * @param bandwidth
-     * @return
+     *
+     * @return this builder instance
      */
-    BucketBuilder withLimitedBandwidth(BandwidthDefinition bandwidth);
+    BucketBuilder addLimit(Bandwidth bandwidth);
 
     /**
      * Adds guaranteed bandwidth for all buckets which will be constructed by this builder instance.
@@ -68,8 +47,32 @@ public interface BucketBuilder {
      * Unlike limited bandwidths, you can use only one guaranteed bandwidth per single bucket.
      *
      * @param bandwidth
-     * @return
+     *
+     * @return this builder instance
      */
-    BucketBuilder withGuaranteedBandwidth(BandwidthDefinition bandwidth);
+    BucketBuilder setGuarantee(Bandwidth bandwidth);
+
+    /**
+     * Configures {@link TimeMeter#SYSTEM_MILLISECONDS} as time meter.
+     *
+     * @return this builder instance
+     */
+    BucketBuilder withMillisecondPrecision();
+
+    /**
+     * Configures {@link TimeMeter#SYSTEM_NANOTIME} as time meter.
+     *
+     * @return this builder instance
+     */
+    BucketBuilder withNanosecondPrecision();
+
+    /**
+     * Configures {@code customTimeMeter} as time meter.
+     *
+     * @param customTimeMeter object which will measure time.
+     *
+     * @return this builder instance
+     */
+    BucketBuilder withCustomTimeMeter(TimeMeter customTimeMeter);
 
 }

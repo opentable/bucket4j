@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl.grid.ignite;
+package com.github.bucket4j.grid.ignite;
 
-import com.github.bucket4j.impl.grid.GridCommand;
+import com.github.bucket4j.grid.GridCommand;
 
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;

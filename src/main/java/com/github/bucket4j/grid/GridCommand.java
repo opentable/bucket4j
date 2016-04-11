@@ -14,14 +14,17 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl.grid;
+package com.github.bucket4j.grid;
+
+import com.github.bucket4j.common.BucketConfiguration;
+import com.github.bucket4j.common.BucketState;
 
 import java.io.Serializable;
 
-public interface GridProxy {
+public interface GridCommand<T extends Serializable> extends Serializable {
 
-    <T extends Serializable> T execute(GridCommand<T> command);
+    T execute(BucketState state, BucketConfiguration configuration);
 
-    void setInitialState(GridBucketState initialState);
+    boolean isBucketStateModified();
 
 }

@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl.grid.coherence;
+package com.github.bucket4j.grid.coherence;
 
-import com.github.bucket4j.impl.grid.GridCommand;
+import com.github.bucket4j.grid.GridCommand;
 import com.tangosol.util.InvocableMap;
 import com.tangosol.util.processor.AbstractProcessor;
 

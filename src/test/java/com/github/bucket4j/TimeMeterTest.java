@@ -16,6 +16,7 @@
 
 package com.github.bucket4j;
 
+import com.github.bucket4j.common.TimeMeter;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;

@@ -21,8 +21,8 @@ import org.junit.Test;
 
 import java.time.Duration;
 
-import static com.github.bucket4j.TimeMeter.SYSTEM_MILLISECONDS;
-import static com.github.bucket4j.TimeMeter.SYSTEM_NANOTIME;
+import static com.github.bucket4j.common.TimeMeter.SYSTEM_MILLISECONDS;
+import static com.github.bucket4j.common.TimeMeter.SYSTEM_NANOTIME;
 import static org.junit.Assert.assertEquals;
 
 public class BucketBuilderTest {

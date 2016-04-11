@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl.grid;
+package com.github.bucket4j.grid;
 
-import com.github.bucket4j.impl.AbstractBucket;
-import com.github.bucket4j.impl.BucketConfiguration;
-import com.github.bucket4j.impl.BucketState;
+import com.github.bucket4j.common.AbstractBucket;
+import com.github.bucket4j.common.BucketConfiguration;
+import com.github.bucket4j.common.BucketState;
 
 public class GridBucket extends AbstractBucket {
 

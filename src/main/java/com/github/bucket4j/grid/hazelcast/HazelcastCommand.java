@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl.grid.hazelcast;
+package com.github.bucket4j.grid.hazelcast;
 
-import com.github.bucket4j.impl.BucketState;
-import com.github.bucket4j.impl.grid.GridCommand;
+import com.github.bucket4j.common.BucketState;
+import com.github.bucket4j.grid.GridCommand;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 

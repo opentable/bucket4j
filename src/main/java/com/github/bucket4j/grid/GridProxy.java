@@ -14,29 +14,14 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl.grid.hazelcast;
-
-import com.github.bucket4j.impl.BucketState;
-import com.hazelcast.map.EntryBackupProcessor;
+package com.github.bucket4j.grid;
 
 import java.io.Serializable;
-import java.util.Map;
 
-public class HazelcastReplicant implements EntryBackupProcessor, Serializable {
+public interface GridProxy {
 
-    private BucketState snapshot;
+    <T extends Serializable> T execute(GridCommand<T> command);
 
-    public HazelcastReplicant(BucketState snapshot) {
-        this.snapshot = snapshot;
-    }
-
-    public HazelcastReplicant() {}
-
-    @Override
-    public void processBackup(Map.Entry entry) {
-        GridBucketState gridState = (GridBucketState) entry.getValue();
-        gridState.getBucketState().copyStateFrom(snapshot);
-        entry.setValue(gridState);
-    }
+    void setInitialState(GridBucketState initialState);
 
 }

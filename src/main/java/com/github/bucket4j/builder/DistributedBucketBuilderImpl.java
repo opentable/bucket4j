@@ -1,13 +1,13 @@
 package com.github.bucket4j.builder;
 
 import com.github.bucket4j.Bucket;
-import com.github.bucket4j.impl.BucketConfiguration;
-import com.github.bucket4j.impl.BucketState;
-import com.github.bucket4j.impl.grid.GridBucket;
-import com.github.bucket4j.impl.grid.GridProxy;
-import com.github.bucket4j.impl.grid.coherence.CoherenceProxy;
-import com.github.bucket4j.impl.grid.hazelcast.HazelcastProxy;
-import com.github.bucket4j.impl.grid.ignite.IgniteProxy;
+import com.github.bucket4j.common.BucketConfiguration;
+import com.github.bucket4j.common.BucketState;
+import com.github.bucket4j.grid.GridBucket;
+import com.github.bucket4j.grid.GridProxy;
+import com.github.bucket4j.grid.coherence.CoherenceProxy;
+import com.github.bucket4j.grid.hazelcast.HazelcastProxy;
+import com.github.bucket4j.grid.ignite.IgniteProxy;
 import com.github.bucket4j.statistic.StatisticCollector;
 import com.hazelcast.core.IMap;
 import com.tangosol.net.NamedCache;

@@ -18,7 +18,7 @@ package realworld.grid;
 
 import com.github.bucket4j.Bucket;
 import com.github.bucket4j.builder.BucketBuilder;
-import com.github.bucket4j.impl.BucketState;
+import com.github.bucket4j.common.BucketState;
 import com.tangosol.net.CacheFactory;
 import com.tangosol.net.NamedCache;
 import org.junit.AfterClass;

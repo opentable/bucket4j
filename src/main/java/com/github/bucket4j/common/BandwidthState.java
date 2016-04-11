@@ -1,10 +1,8 @@
-package com.github.bucket4j;
+package com.github.bucket4j.common;
 
 import java.io.Serializable;
 
-public interface Bandwidth extends Serializable {
-
-    double[] getInitialState();
+public interface BandwidthState extends Serializable {
 
     void refill(State state, long lastRefillTimeNanos, long currentTimeNanos);
 

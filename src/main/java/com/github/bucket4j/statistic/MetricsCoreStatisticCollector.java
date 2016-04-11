@@ -49,7 +49,7 @@ public class MetricsCoreStatisticCollector implements StatisticCollector {
     }
 
     @Override
-    public StatisticSnapshot createStatisticSnapshot() {
+    public StatisticSnapshot getSnapshot() {
         return new StatisticSnapshot(
                 consumedTokens.getCount(),
                 rejectedTokens.getCount(),

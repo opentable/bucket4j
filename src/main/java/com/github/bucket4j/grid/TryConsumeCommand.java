@@ -14,34 +14,34 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl.grid;
+package com.github.bucket4j.grid;
 
-import com.github.bucket4j.impl.SmoothlyRefillingBandwidthBandwidth;
-import com.github.bucket4j.impl.BucketConfiguration;
-import com.github.bucket4j.impl.BucketState;
+import com.github.bucket4j.common.SmoothlyRenewableBandwidthState;
+import com.github.bucket4j.common.BucketConfiguration;
+import com.github.bucket4j.common.BucketState;
 
-public class ConsumeAsMuchAsPossibleCommand implements GridCommand<Long> {
+public class TryConsumeCommand implements GridCommand<Boolean> {
 
-    private long limit;
+    private long tokensToConsume;
     private boolean bucketStateModified;
 
-    public ConsumeAsMuchAsPossibleCommand(long limit) {
-        this.limit = limit;
+    public TryConsumeCommand(long tokensToConsume) {
+        this.tokensToConsume = tokensToConsume;
     }
 
     @Override
-    public Long execute(BucketState state, BucketConfiguration configuration) {
+    public Boolean execute(BucketState state, BucketConfiguration configuration) {
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
-        SmoothlyRefillingBandwidthBandwidth[] bandwidths = configuration.getBandwidths();
+        SmoothlyRenewableBandwidthState[] bandwidths = configuration.getBandwidths();
         state.refill(bandwidths, currentTimeNanos);
         long availableToConsume = state.getAvailableTokens(bandwidths);
-        long toConsume = Math.min(limit, availableToConsume);
-        if (toConsume <= 0) {
-            return 0l;
+        if (tokensToConsume <= availableToConsume) {
+            state.consume(tokensToConsume);
+            bucketStateModified = true;
+            return true;
+        } else {
+            return false;
         }
-        state.consume(toConsume);
-        bucketStateModified = true;
-        return toConsume;
     }
 
     @Override

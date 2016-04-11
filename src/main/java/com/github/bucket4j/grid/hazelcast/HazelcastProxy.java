@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl.grid.hazelcast;
+package com.github.bucket4j.grid.hazelcast;
 
-import com.github.bucket4j.impl.grid.GridCommand;
-import com.github.bucket4j.impl.grid.GridProxy;
+import com.github.bucket4j.grid.GridCommand;
+import com.github.bucket4j.grid.GridProxy;
 import com.hazelcast.core.IMap;
 
 import java.io.Serializable;

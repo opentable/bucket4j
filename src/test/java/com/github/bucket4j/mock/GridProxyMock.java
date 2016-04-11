@@ -17,8 +17,8 @@
 package com.github.bucket4j.mock;
 
 
-import com.github.bucket4j.impl.grid.GridCommand;
-import com.github.bucket4j.impl.grid.GridProxy;
+import com.github.bucket4j.grid.GridCommand;
+import com.github.bucket4j.grid.GridProxy;
 
 import java.io.Serializable;
 

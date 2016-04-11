@@ -14,16 +14,16 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j.impl;
+package com.github.bucket4j.common;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class BucketState implements Serializable {
+public class BucketState implements Serializable, State {
 
     // the first element of array represents last getNewSize timestamp in nanos,
     // next elements represent bandwidth current size
-    //private final double[] state;
+    private final double[] state;
 
     private BucketState(double[] state) {
         this.state = state;
@@ -34,12 +34,46 @@ public class BucketState implements Serializable {
         return new BucketState(Arrays.copyOf(state, state.length));
     }
 
+    @Override
+    public double getDouble(int offset) {
+        // TODO
+        return 0;
+    }
+
+    @Override
+    public long getLong(int offset) {
+        // TODO
+        return 0;
+    }
+
+    @Override
+    public void setDouble(int offset, double value) {
+        // TODO
+    }
+
+    @Override
+    public void setLong(int partialStateIndex, int offset, long value) {
+        // TODO
+    }
+
+    @Override
+    public int allocate(double[] array) {
+        // TODO
+        return 0;
+    }
+
+    @Override
+    public int allocate(long[] array) {
+        // TODO
+        return 0;
+    }
+
     public void copyStateFrom(BucketState sourceState) {
         System.arraycopy(sourceState.state, 0, state, 0, state.length);
     }
 
     public static BucketState createInitialState(BucketConfiguration configuration) {
-        SmoothlyRefillingBandwidthBandwidth[] bandwidths = configuration.getBandwidths();
+        SmoothlyRenewableBandwidthState[] bandwidths = configuration.getBandwidths();
         double state[] = new double[bandwidths.length + 1];
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
         for(int i = 0; i < bandwidths.length; i++) {
@@ -50,11 +84,11 @@ public class BucketState implements Serializable {
         return bucketState;
     }
 
-    public long getAvailableTokens(SmoothlyRefillingBandwidthBandwidth[] bandwidths) {
+    public long getAvailableTokens(SmoothlyRenewableBandwidthState[] bandwidths) {
         double availableByLimitation = Long.MAX_VALUE;
         double availableByGuarantee = 0;
         for (int i = 0; i < bandwidths.length; i++) {
-            SmoothlyRefillingBandwidthBandwidth bandwidth = bandwidths[i];
+            SmoothlyRenewableBandwidthState bandwidth = bandwidths[i];
             double currentSize = state[i + 1];
             if (bandwidth.isLimited()) {
                 availableByLimitation = Math.min(availableByLimitation, currentSize);
@@ -71,11 +105,11 @@ public class BucketState implements Serializable {
         }
     }
 
-    public long delayNanosAfterWillBePossibleToConsume(SmoothlyRefillingBandwidthBandwidth[] bandwidths, long currentTime, long tokensToConsume) {
+    public long delayNanosAfterWillBePossibleToConsume(SmoothlyRenewableBandwidthState[] bandwidths, long currentTime, long tokensToConsume) {
         long delayAfterWillBePossibleToConsumeLimited = 0;
         long delayAfterWillBePossibleToConsumeGuaranteed = Long.MAX_VALUE;
         for (int i = 0; i < bandwidths.length; i++) {
-            SmoothlyRefillingBandwidthBandwidth bandwidth = bandwidths[i];
+            SmoothlyRenewableBandwidthState bandwidth = bandwidths[i];
             double currentSize = state[i + 1];
             long delay = bandwidth.delayNanosAfterWillBePossibleToConsume(currentSize, currentTime, tokensToConsume);
             if (bandwidth.isGuaranteed()) {
@@ -93,13 +127,13 @@ public class BucketState implements Serializable {
         return Math.min(delayAfterWillBePossibleToConsumeLimited, delayAfterWillBePossibleToConsumeGuaranteed);
     }
 
-    public void refill(SmoothlyRefillingBandwidthBandwidth[] bandwidths, long currentTimeNanos) {
+    public void refill(SmoothlyRenewableBandwidthState[] bandwidths, long currentTimeNanos) {
         long lastRefillTimeNanos = getLastRefillTimeNanos();
         if (lastRefillTimeNanos == currentTimeNanos) {
             return;
         }
         for (int i = 0; i < bandwidths.length; i++) {
-            SmoothlyRefillingBandwidthBandwidth bandwidth = bandwidths[i];
+            SmoothlyRenewableBandwidthState bandwidth = bandwidths[i];
             double currentSize = state[i + 1];
             state[i + 1] = bandwidth.getNewSize(currentSize, lastRefillTimeNanos, currentTimeNanos);
         }

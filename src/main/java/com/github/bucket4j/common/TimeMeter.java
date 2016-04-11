@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.github.bucket4j;
+package com.github.bucket4j.common;
 
 
 import java.io.Serializable;
@@ -24,8 +24,8 @@ import java.util.concurrent.locks.LockSupport;
 /**
  * An abstraction over time measurement.
  *
- * @see com.github.bucket4j.TimeMeter#SYSTEM_NANOTIME
- * @see com.github.bucket4j.TimeMeter#SYSTEM_MILLISECONDS
+ * @see TimeMeter#SYSTEM_NANOTIME
+ * @see TimeMeter#SYSTEM_MILLISECONDS
  */
 public interface TimeMeter extends Serializable {
 

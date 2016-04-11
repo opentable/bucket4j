@@ -33,7 +33,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * <p>
  * <p>Simple example of usage:
  * <code><pre>
- * Bucket bucket = Bucket.builder().withLimitedBandwidth(100, Duration.ofMinutes(1)).build();
+ * Bucket bucket = Bucket.builder().addLimit(100, Duration.ofMinutes(1)).build();
  * ...
  * if (bucket.tryConsumeSingleToken()) {
  *     doSomething();

@@ -1,7 +1,7 @@
 package com.github.bucket4j.statistic;
 
 /**
- * Collects statistics of the bucket working.
+ * Collects statistics of the bucket.
  *
  */
 public interface StatisticCollector {

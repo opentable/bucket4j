@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.github.bucket4j.impl;
+package com.github.bucket4j.common;
 
 import com.github.bucket4j.Bucket;
 
