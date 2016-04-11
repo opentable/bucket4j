@@ -16,22 +16,21 @@
 
 package com.github.bucket4j.impl;
 
+import com.github.bucket4j.Bandwidth;
 import com.github.bucket4j.Capacity;
 import com.github.bucket4j.RefillStrategy;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Objects;
-import java.util.concurrent.ForkJoinPool;
 
-public class Bandwidth implements Serializable {
+public class SmoothlyRefillingBandwidthBandwidth implements Bandwidth {
 
     final long periodNanos;
     final boolean guaranteed;
     final Capacity capacity;
     final RefillStrategy refillStrategy;
 
-    public Bandwidth(Capacity capacity, RefillStrategy refillStrategy, long periodNanos, boolean guaranteed) {
+    public SmoothlyRefillingBandwidthBandwidth(Capacity capacity, RefillStrategy refillStrategy, long periodNanos, boolean guaranteed) {
         this.capacity = Objects.requireNonNull(capacity);
         if (periodNanos <= 0) {
             String pattern = "{0} is wrong value for period of bandwidth, because period should be positive";
@@ -66,7 +65,7 @@ public class Bandwidth implements Serializable {
         return Math.min(newSize, maxCapacity);
     }
 
-    public long delayNanosAfterWillBePossibleToConsume(Bandwidth bandwidth, double currentSize, long currentTimeNanos, double tokens) {
+    public long delayNanosAfterWillBePossibleToConsume(SmoothlyRefillingBandwidthBandwidth bandwidth, double currentSize, long currentTimeNanos, double tokens) {
         if (tokens <= currentSize) {
             return 0;
         }
@@ -93,7 +92,7 @@ public class Bandwidth implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Bandwidth bandwidth = (Bandwidth) o;
+        SmoothlyRefillingBandwidthBandwidth bandwidth = (SmoothlyRefillingBandwidthBandwidth) o;
 
         if (periodNanos != bandwidth.periodNanos) return false;
         if (guaranteed != bandwidth.guaranteed) return false;

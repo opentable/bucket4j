@@ -39,7 +39,7 @@ public class BucketState implements Serializable {
     }
 
     public static BucketState createInitialState(BucketConfiguration configuration) {
-        Bandwidth[] bandwidths = configuration.getBandwidths();
+        SmoothlyRefillingBandwidthBandwidth[] bandwidths = configuration.getBandwidths();
         double state[] = new double[bandwidths.length + 1];
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
         for(int i = 0; i < bandwidths.length; i++) {
@@ -50,11 +50,11 @@ public class BucketState implements Serializable {
         return bucketState;
     }
 
-    public long getAvailableTokens(Bandwidth[] bandwidths) {
+    public long getAvailableTokens(SmoothlyRefillingBandwidthBandwidth[] bandwidths) {
         double availableByLimitation = Long.MAX_VALUE;
         double availableByGuarantee = 0;
         for (int i = 0; i < bandwidths.length; i++) {
-            Bandwidth bandwidth = bandwidths[i];
+            SmoothlyRefillingBandwidthBandwidth bandwidth = bandwidths[i];
             double currentSize = state[i + 1];
             if (bandwidth.isLimited()) {
                 availableByLimitation = Math.min(availableByLimitation, currentSize);
@@ -71,11 +71,11 @@ public class BucketState implements Serializable {
         }
     }
 
-    public long delayNanosAfterWillBePossibleToConsume(Bandwidth[] bandwidths, long currentTime, long tokensToConsume) {
+    public long delayNanosAfterWillBePossibleToConsume(SmoothlyRefillingBandwidthBandwidth[] bandwidths, long currentTime, long tokensToConsume) {
         long delayAfterWillBePossibleToConsumeLimited = 0;
         long delayAfterWillBePossibleToConsumeGuaranteed = Long.MAX_VALUE;
         for (int i = 0; i < bandwidths.length; i++) {
-            Bandwidth bandwidth = bandwidths[i];
+            SmoothlyRefillingBandwidthBandwidth bandwidth = bandwidths[i];
             double currentSize = state[i + 1];
             long delay = bandwidth.delayNanosAfterWillBePossibleToConsume(currentSize, currentTime, tokensToConsume);
             if (bandwidth.isGuaranteed()) {
@@ -93,13 +93,13 @@ public class BucketState implements Serializable {
         return Math.min(delayAfterWillBePossibleToConsumeLimited, delayAfterWillBePossibleToConsumeGuaranteed);
     }
 
-    public void refill(Bandwidth[] bandwidths, long currentTimeNanos) {
+    public void refill(SmoothlyRefillingBandwidthBandwidth[] bandwidths, long currentTimeNanos) {
         long lastRefillTimeNanos = getLastRefillTimeNanos();
         if (lastRefillTimeNanos == currentTimeNanos) {
             return;
         }
         for (int i = 0; i < bandwidths.length; i++) {
-            Bandwidth bandwidth = bandwidths[i];
+            SmoothlyRefillingBandwidthBandwidth bandwidth = bandwidths[i];
             double currentSize = state[i + 1];
             state[i + 1] = bandwidth.getNewSize(currentSize, lastRefillTimeNanos, currentTimeNanos);
         }

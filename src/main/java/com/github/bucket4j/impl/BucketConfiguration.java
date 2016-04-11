@@ -16,8 +16,8 @@
 
 package com.github.bucket4j.impl;
 
+import com.github.bucket4j.Bandwidth;
 import com.github.bucket4j.TimeMeter;
-import com.github.bucket4j.impl.Bandwidth;
 
 import java.io.Serializable;
 import java.util.Arrays;

@@ -16,7 +16,7 @@
 
 package com.github.bucket4j
 
-import com.github.bucket4j.impl.Bandwidth
+import com.github.bucket4j.impl.SmoothlyRefillingBandwidthBandwidth
 import com.github.bucket4j.mock.FunctionMock
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -26,7 +26,7 @@ class BandwidthSpecification extends Specification {
     def "Specification for timeRequiredToRefill"(long period, long capacity, long initialCapacity, long currentTime,
                  long tokensToConsume, long requiredTime) {
         setup:
-            Bandwidth bandwidth = bandwidth(capacity, initialCapacity, period);
+            SmoothlyRefillingBandwidthBandwidth bandwidth = bandwidth(capacity, initialCapacity, period);
         expect:
             bandwidth.delayNanosAfterWillBePossibleToConsume(initialCapacity, currentTime, tokensToConsume) == requiredTime
         where:
@@ -44,7 +44,7 @@ class BandwidthSpecification extends Specification {
                long timeRefill2, double requiredSize2, long timeRefill3, double requiredSize3) {
         setup:
             def adjuster = new FunctionMock(maxCapacityBefore)
-            def bandwidth = new Bandwidth(adjuster, initialCapacity, period, false)
+            def bandwidth = new SmoothlyRefillingBandwidthBandwidth(adjuster, initialCapacity, period, false)
             double currentSize = initialCapacity
         when:
             adjuster.setCapacity(maxCapacityAfter)
@@ -76,8 +76,8 @@ class BandwidthSpecification extends Specification {
             8  |        0        | 1000   | 10000    |       100         |       100        | 10004       |      0.4      |    10009    |   0.9         |    10010    |       1
     }
 
-    private Bandwidth bandwidth(long capacity, long initialCapacity, long period) {
-        return new Bandwidth(new Capacity.ImmutableCapacity(capacity), initialCapacity, period, false);
+    private SmoothlyRefillingBandwidthBandwidth bandwidth(long capacity, long initialCapacity, long period) {
+        return new SmoothlyRefillingBandwidthBandwidth(new Capacity.ImmutableCapacity(capacity), initialCapacity, period, false);
     }
 
 }

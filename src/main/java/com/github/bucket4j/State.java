@@ -2,12 +2,12 @@ package com.github.bucket4j;
 
 interface State {
 
-    double getDouble(int partialStateIndex, int offset);
+    double getDouble(int offset);
 
-    long getLong(int partialStateIndex, int offset);
+    long getLong(int offset);
 
-    double setDouble(int partialStateIndex, int offset, double value);
+    void setDouble(int offset, double value);
 
-    long getLong(int partialStateIndex, int offset, long value);
+    void setLong(int partialStateIndex, int offset, long value);
 
 }
