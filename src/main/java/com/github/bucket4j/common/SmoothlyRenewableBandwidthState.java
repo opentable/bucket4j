@@ -16,8 +16,7 @@
 
 package com.github.bucket4j.common;
 
-import java.text.MessageFormat;
-import java.util.Objects;
+import java.util.Optional;
 
 public class SmoothlyRenewableBandwidthState implements BandwidthState {
 
@@ -25,13 +24,33 @@ public class SmoothlyRenewableBandwidthState implements BandwidthState {
     final long periodNanos;
     final long maxCapacity;
 
-    public SmoothlyRenewableBandwidthState(int offset, long periodNanos, long maxCapacity, long initialCapacity) {
+    public static Bandwidth bandwidth(long maxCapacity, long initialCapacity, long periodNanos) {
+        Preconditions.checkPeriod(periodNanos);
+        Preconditions.checkCapacities(maxCapacity, initialCapacity);
+        return new Bandwidth() {
+            @Override
+            public BandwidthState createInitialBandwidthState(StateInitializer stateInitializer, long currentTimeNanos) {
+                return new SmoothlyRenewableBandwidthState(stateInitializer, periodNanos, maxCapacity, initialCapacity);
+            }
+            @Override
+            public Optional<Long> getPeriodInNanos() {
+                return Optional.of(periodNanos);
+            }
+            @Override
+            public Optional<Long> getMaxCapacity() {
+                return Optional.of(maxCapacity);;
+            }
+        };
+    }
+
+    private SmoothlyRenewableBandwidthState(StateInitializer stateInitializer, long periodNanos, long maxCapacity, long initialCapacity) {
         this.periodNanos = periodNanos;
+        this.maxCapacity = maxCapacity;
+        this.offset = stateInitializer.allocate(new long[] {initialCapacity});
     }
 
     public double getNewSize(double currentSize, long previousRefillNanos, long currentTimeNanos) {
         long durationSinceLastRefillNanos = currentTimeNanos - previousRefillNanos;
-        final double maxCapacity = capacity.getMaxValue(currentTimeNanos);
         double refill = maxCapacity * durationSinceLastRefillNanos / periodNanos;
         double newSize = currentSize + refill;
         return Math.min(newSize, maxCapacity);
@@ -41,7 +60,6 @@ public class SmoothlyRenewableBandwidthState implements BandwidthState {
         if (tokens <= currentSize) {
             return 0;
         }
-        final double maxCapacity = capacity.getMaxValue(currentTimeNanos);
         if (tokens > maxCapacity) {
             return Long.MAX_VALUE;
         }
@@ -52,24 +70,11 @@ public class SmoothlyRenewableBandwidthState implements BandwidthState {
 
     @Override
     public String toString() {
-        return "Bandwidth{" +
+        return "SmoothlyRenewableBandwidthState{" +
+                "offset=" + offset +
                 ", periodNanos=" + periodNanos +
-                ", guaranteed=" + guaranteed +
-                ", capacity=" + capacity +
+                ", maxCapacity=" + maxCapacity +
                 '}';
     }
 
-    public static Bandwidth bandwidth(long maxCapacity, long initialCapacity, long l) {
-        if (maxCapacity < 0) {
-
-        }
-        this.capacity = Objects.requireNonNull(capacity);
-        long periodNanos = ;
-        if (periodNanos <= 0) {
-            String pattern = "{0} is wrong value for period of bandwidth, because period should be positive";
-            String msg = MessageFormat.format(pattern, periodNanos);
-            throw new IllegalArgumentException(msg);
-        }
-        return null;
-    }
 }

@@ -1,27 +1,35 @@
 package com.github.bucket4j.common;
 
 import java.time.Duration;
-
+import java.util.Optional;
 
 
 public interface Bandwidth {
 
-    Bandwidth createInitialBandwidthState(State state, long currentTimeNanos);
-
     static Bandwidth smoothlyRenewable(long maxCapacity, Duration period) {
-        return smoothlyRenewable(maxCapacity, maxCapacity, period);
+        return smoothlyRenewable(maxCapacity, period, maxCapacity);
     }
 
-    static Bandwidth smoothlyRenewable(long maxCapacity, long initialCapacity, Duration period) {
+    static Bandwidth smoothlyRenewable(long maxCapacity, Duration period, long initialCapacity) {
         return SmoothlyRenewableBandwidthState.bandwidth(maxCapacity, initialCapacity, period.toNanos());
     }
 
     static Bandwidth smoothlyWarmingUp(Duration period, long fromCapacity, long toCapacity, Duration warmupPeriod) {
-        return SmoothlyWarmingUpBandwidthState.bandwidth(period.toNanos(), fromCapacity, toCapacity, warmupPeriod.toNanos());
+        return smoothlyWarmingUp(period, fromCapacity, toCapacity, warmupPeriod, fromCapacity);
+    }
+
+    static Bandwidth smoothlyWarmingUp(Duration period, long fromCapacity, long toCapacity, Duration warmupPeriod, long initialCapacity) {
+        return SmoothlyWarmingUpBandwidthState.bandwidth(period.toNanos(), fromCapacity, toCapacity, warmupPeriod.toNanos(), initialCapacity);
     }
 
     static Bandwidth intervallyRenewable(long maxCapacity, long initialCapacity, Duration period) {
         return SmoothlyRenewableBandwidthState.bandwidth(maxCapacity, initialCapacity, period.toNanos());
     }
+
+    BandwidthState createInitialBandwidthState(StateInitializer stateInitializer, long currentTimeNanos);
+
+    Optional<Long> getPeriodInNanos();
+
+    Optional<Long> getMaxCapacity();
 
 }

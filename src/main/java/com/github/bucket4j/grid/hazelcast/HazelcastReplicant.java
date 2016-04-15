@@ -34,8 +34,8 @@ public class HazelcastReplicant implements EntryBackupProcessor, Serializable {
 
     @Override
     public void processBackup(Map.Entry entry) {
-        GridBucketState gridState = (GridBucketState) entry.getValue();
-        gridState.getBucketState().copyStateFrom(snapshot);
+        BucketState gridState = (BucketState) entry.getValue();
+        gridState.copyStateFrom(snapshot);
         entry.setValue(gridState);
     }
 

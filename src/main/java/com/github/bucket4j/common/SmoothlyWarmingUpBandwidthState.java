@@ -15,7 +15,7 @@ public class SmoothlyWarmingUpBandwidthState implements BandwidthState {
         this.warmupNanos = warmupDuration.toNanos();
     }
 
-    public static Bandwidth bandwidth(long periodNanos, long fromCapacity, long toCapacity, long warmingUpNanos) {
+    public static Bandwidth bandwidth(long periodNanos, long fromCapacity, long toCapacity, long warmingUpNanos, long initialCapacity) {
         return null;
     }
 

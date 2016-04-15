@@ -16,6 +16,7 @@
 
 package com.github.bucket4j.grid.coherence;
 
+import com.github.bucket4j.common.BucketState;
 import com.github.bucket4j.grid.GridCommand;
 import com.github.bucket4j.grid.GridProxy;
 import com.tangosol.net.NamedCache;
@@ -42,7 +43,7 @@ public class CoherenceProxy implements GridProxy {
     }
 
     @Override
-    public void setInitialState(GridBucketState initialState) {
+    public void setInitialState(BucketState initialState) {
         NotFilter filter = new NotFilter(PresentFilter.INSTANCE);
         cache.invoke(key, new ConditionalPut(filter, initialState));
     }

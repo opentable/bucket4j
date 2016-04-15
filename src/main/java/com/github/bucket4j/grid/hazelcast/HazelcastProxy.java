@@ -16,18 +16,17 @@
 
 package com.github.bucket4j.grid.hazelcast;
 
-import com.github.bucket4j.grid.GridCommand;
-import com.github.bucket4j.grid.GridProxy;
+import com.github.bucket4j.common.BucketState;
 import com.hazelcast.core.IMap;
 
 import java.io.Serializable;
 
 public class HazelcastProxy implements GridProxy {
 
-    private final IMap<Object, GridBucketState> map;
+    private final IMap<Object, BucketState> map;
     private final Serializable key;
 
-    public HazelcastProxy(IMap<Object, GridBucketState> map, Serializable key) {
+    public HazelcastProxy(IMap<Object, BucketState> map, Serializable key) {
         this.map = map;
         this.key = key;
     }
@@ -39,7 +38,7 @@ public class HazelcastProxy implements GridProxy {
     }
 
     @Override
-    public void setInitialState(GridBucketState initialState) {
+    public void setInitialState(BucketState initialState) {
         map.putIfAbsent(key, initialState);
     }
 

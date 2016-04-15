@@ -16,18 +16,17 @@
 
 package com.github.bucket4j.grid.ignite;
 
-import com.github.bucket4j.grid.GridCommand;
-import com.github.bucket4j.grid.GridProxy;
+import com.github.bucket4j.common.BucketState;
 import org.apache.ignite.IgniteCache;
 
 import java.io.Serializable;
 
 public class IgniteProxy implements GridProxy {
 
-    private final IgniteCache<Object, GridBucketState> cache;
+    private final IgniteCache<Object, BucketState> cache;
     private final Object key;
 
-    public IgniteProxy(IgniteCache<Object, GridBucketState> cache, Object key) {
+    public IgniteProxy(IgniteCache<Object, BucketState> cache, Object key) {
         this.cache = cache;
         this.key = key;
     }
@@ -38,7 +37,7 @@ public class IgniteProxy implements GridProxy {
     }
 
     @Override
-    public void setInitialState(GridBucketState initialState) {
+    public void setInitialState(BucketState initialState) {
         cache.putIfAbsent(key, initialState);
     }
 

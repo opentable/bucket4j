@@ -17,18 +17,20 @@
 package com.github.bucket4j.grid;
 
 import com.github.bucket4j.common.AbstractBucket;
-import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
+import com.github.bucket4j.common.StateWithConfiguration;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class GridBucket extends AbstractBucket {
 
     private final GridProxy gridProxy;
 
-    public GridBucket(BucketConfiguration configuration, GridProxy gridProxy) {
-        super(configuration);
+    public GridBucket(StateWithConfiguration stateWithConfiguration, GridProxy gridProxy) {
+        super(stateWithConfiguration.getConfiguration());
         this.gridProxy = gridProxy;
-        GridBucketState initialState = new GridBucketState(configuration, BucketState.createInitialState(configuration));
-        gridProxy.setInitialState(initialState);
+        gridProxy.setInitialState(stateWithConfiguration.getState());
     }
 
     @Override
@@ -74,6 +76,12 @@ public class GridBucket extends AbstractBucket {
     @Override
     protected void applySnapshotImpl(BucketState bucketState) {
         // TODO
+    }
+
+    @Override
+    protected CompletableFuture<Boolean> tryConsumeAsyncImpl(long numTokens, long maxWaitNanos, ScheduledExecutorService scheduler) {
+        // TODO
+        return null;
     }
 
     @Override

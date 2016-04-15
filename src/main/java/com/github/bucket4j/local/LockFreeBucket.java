@@ -16,23 +16,23 @@
 package com.github.bucket4j.local;
 
 
-import com.github.bucket4j.common.AbstractBucket;
-import com.github.bucket4j.common.SmoothlyRenewableBandwidthState;
-import com.github.bucket4j.common.BucketConfiguration;
-import com.github.bucket4j.common.BucketState;
+import com.github.bucket4j.common.*;
+import com.github.bucket4j.statistic.StatisticCollector;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LockFreeBucket extends AbstractBucket {
 
     private final AtomicReference<BucketState> stateReference;
-    private final BucketConfiguration configuration;
+    private final StatisticCollector statisticCollector;
 
-    public LockFreeBucket(BucketConfiguration configuration) {
-        super(configuration);
-        this.configuration = configuration;
-        BucketState initialState = BucketState.createInitialState(configuration);
+    public LockFreeBucket(StateWithConfiguration stateWithConfiguration, StatisticCollector statisticCollector) {
+        super(stateWithConfiguration.getConfiguration());
+        BucketState initialState = stateWithConfiguration.getState();
         this.stateReference = new AtomicReference<>(initialState);
+        this.statisticCollector = statisticCollector;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class LockFreeBucket extends AbstractBucket {
     protected long consumeAsMuchAsPossibleImpl(long limit) {
         BucketState previousState = stateReference.get();
         BucketState newState = previousState.clone();
-        SmoothlyRenewableBandwidthState[] bandwidths = configuration.getBandwidths();
+        BandwidthState[] bandwidths = configuration.getLimitedBandwidths();
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
 
         while (true) {
@@ -68,7 +68,7 @@ public class LockFreeBucket extends AbstractBucket {
     protected boolean tryConsumeImpl(long tokensToConsume) {
         BucketState previousState = stateReference.get();
         BucketState newState = previousState.clone();
-        SmoothlyRenewableBandwidthState[] bandwidths = configuration.getBandwidths();
+        BandwidthState[] bandwidths = configuration.getLimitedBandwidths();
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
 
         while (true) {
@@ -85,6 +85,11 @@ public class LockFreeBucket extends AbstractBucket {
                 newState.copyStateFrom(previousState);
             }
         }
+    }
+
+    @Override
+    protected CompletableFuture<Boolean> tryConsumeAsyncImpl(long numTokens, long maxWaitNanos, ScheduledExecutorService scheduler) {
+        return null;
     }
 
     @Override

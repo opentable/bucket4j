@@ -3,7 +3,6 @@ package com.github.bucket4j.builder;
 import com.github.bucket4j.Bucket;
 import com.github.bucket4j.common.BucketState;
 import com.github.bucket4j.grid.GridProxy;
-import com.github.bucket4j.statistic.StatisticCollector;
 import com.hazelcast.core.IMap;
 import com.tangosol.net.NamedCache;
 import org.apache.ignite.IgniteCache;
@@ -15,10 +14,6 @@ import java.util.function.Supplier;
  * Created by vladimir.bukhtoyarov on 29.02.2016.
  */
 public interface DistributedBucketBuilder extends BucketBuilder {
-
-    BucketBuilder withLocalStatisticCollector(StatisticCollector statisticCollector);
-
-    <T extends Supplier<StatisticCollector> & Serializable> BucketBuilder withRemoteStatisticCollector(T statisticCollectorSupplier);
 
     /**
      * Constructs an instance of {@link com.github.bucket4j.grid.GridBucket} which responsible to limit rate inside Hazelcast cluster.
@@ -65,4 +60,5 @@ public interface DistributedBucketBuilder extends BucketBuilder {
      */
     Bucket buildForCustomGrid(GridProxy gridProxy);
 
+    Bucket buildForCustomGrid(GridProxy gridProxy);
 }

@@ -17,78 +17,70 @@
 package com.github.bucket4j.common;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class BucketState implements Serializable, State {
+public class BucketState implements Serializable {
 
-    // the first element of array represents last getNewSize timestamp in nanos,
-    // next elements represent bandwidth current size
-    private final double[] state;
+    // the first element of array represents last refill timestamp in nanos,
+    // next elements represent bandwidth states
+    private final long[] state;
 
-    private BucketState(double[] state) {
+    private BucketState(long[] state) {
         this.state = state;
     }
 
-    @Override
     public BucketState clone() {
         return new BucketState(Arrays.copyOf(state, state.length));
     }
 
-    @Override
     public double getDouble(int offset) {
-        // TODO
-        return 0;
+        return Double.longBitsToDouble(offset);
     }
 
-    @Override
     public long getLong(int offset) {
-        // TODO
-        return 0;
+        return state[offset];
     }
 
-    @Override
     public void setDouble(int offset, double value) {
-        // TODO
+        state[0] = Double.doubleToRawLongBits(value);
     }
 
-    @Override
     public void setLong(int partialStateIndex, int offset, long value) {
-        // TODO
-    }
-
-    @Override
-    public int allocate(double[] array) {
-        // TODO
-        return 0;
-    }
-
-    @Override
-    public int allocate(long[] array) {
-        // TODO
-        return 0;
+        state[offset] = value;
     }
 
     public void copyStateFrom(BucketState sourceState) {
         System.arraycopy(sourceState.state, 0, state, 0, state.length);
     }
 
-    public static BucketState createInitialState(BucketConfiguration configuration) {
-        SmoothlyRenewableBandwidthState[] bandwidths = configuration.getBandwidths();
-        double state[] = new double[bandwidths.length + 1];
-        long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
-        for(int i = 0; i < bandwidths.length; i++) {
-            state[i + 1] = bandwidths[i].getCapacity().getInitialValue(currentTimeNanos);
+    public static StateWithConfiguration createInitialState(TimeMeter timeMeter, List<Bandwidth> limitedBandwidths, Bandwidth guaranteedBandwidth) {
+        Preconditions.checkCompatibility(limitedBandwidths, guaranteedBandwidth);
+
+        long currentTimeNanos = timeMeter.currentTimeNanos();
+        StateInitializer stateInitializer = new StateInitializer(new long[] {currentTimeNanos});
+
+        BandwidthState guaranteedBandwidthState = null;
+        if (guaranteedBandwidth != null) {
+            guaranteedBandwidthState = guaranteedBandwidth.createInitialBandwidthState(stateInitializer, currentTimeNanos);
         }
-        BucketState bucketState = new BucketState(state);
-        bucketState.setLastRefillTime(currentTimeNanos);
-        return bucketState;
+
+        BandwidthState[] limitedBandwidthStates = new BandwidthState[limitedBandwidths.size()];
+        for (int i = 0; i < limitedBandwidthStates.length; i++) {
+            limitedBandwidthStates[i] = limitedBandwidths.get(i).createInitialBandwidthState(stateInitializer, currentTimeNanos);
+        }
+
+        BucketState bucketState = new BucketState(stateInitializer.getState());
+        BucketConfiguration bucketConfiguration = new BucketConfiguration(limitedBandwidthStates, guaranteedBandwidthState, timeMeter);
+        return new StateWithConfiguration(bucketConfiguration, bucketState);
     }
 
-    public long getAvailableTokens(SmoothlyRenewableBandwidthState[] bandwidths) {
-        double availableByLimitation = Long.MAX_VALUE;
+    public long getAvailableTokens(BandwidthState[] limitedBandwidths, BandwidthState guaranteedBandwidth) {
         double availableByGuarantee = 0;
-        for (int i = 0; i < bandwidths.length; i++) {
-            SmoothlyRenewableBandwidthState bandwidth = bandwidths[i];
+        double availableByLimitation = Long.MAX_VALUE;
+        for (int i = 0; i < limitedBandwidths.length; i++) {
+            BandwidthState bandwidth = limitedBandwidths[i];
             double currentSize = state[i + 1];
             if (bandwidth.isLimited()) {
                 availableByLimitation = Math.min(availableByLimitation, currentSize);
@@ -127,13 +119,13 @@ public class BucketState implements Serializable, State {
         return Math.min(delayAfterWillBePossibleToConsumeLimited, delayAfterWillBePossibleToConsumeGuaranteed);
     }
 
-    public void refill(SmoothlyRenewableBandwidthState[] bandwidths, long currentTimeNanos) {
+    public void refill(BandwidthState[] bandwidths, long currentTimeNanos) {
         long lastRefillTimeNanos = getLastRefillTimeNanos();
         if (lastRefillTimeNanos == currentTimeNanos) {
             return;
         }
         for (int i = 0; i < bandwidths.length; i++) {
-            SmoothlyRenewableBandwidthState bandwidth = bandwidths[i];
+            BandwidthState bandwidth = bandwidths[i];
             double currentSize = state[i + 1];
             state[i + 1] = bandwidth.getNewSize(currentSize, lastRefillTimeNanos, currentTimeNanos);
         }
@@ -141,11 +133,11 @@ public class BucketState implements Serializable, State {
     }
 
     void setLastRefillTime(long currentTimeNanos) {
-        state[0] = Double.longBitsToDouble(currentTimeNanos);
+        state[0] = currentTimeNanos;
     }
 
     long getLastRefillTimeNanos() {
-        return Double.doubleToRawLongBits(state[0]);
+        return state[0];
     }
 
     @Override

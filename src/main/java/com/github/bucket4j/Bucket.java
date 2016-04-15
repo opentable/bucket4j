@@ -15,10 +15,9 @@
  */
 package com.github.bucket4j;
 
+import com.github.bucket4j.builder.BucketBuilderImpl;
 import com.github.bucket4j.builder.DistributedBucketBuilder;
-import com.github.bucket4j.builder.DistributedBucketBuilderImpl;
 import com.github.bucket4j.builder.LocalBucketBuilder;
-import com.github.bucket4j.builder.LocalBucketBuilderImpl;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -51,7 +50,7 @@ public interface Bucket {
      * @return builder which performs bucket construction for local usage scenario.
      */
     static LocalBucketBuilder builder() {
-        return new LocalBucketBuilderImpl();
+        return new BucketBuilderImpl();
     }
 
     /**
@@ -60,7 +59,7 @@ public interface Bucket {
      * @return
      */
     static DistributedBucketBuilder distributedBuilder() {
-        return new DistributedBucketBuilderImpl();
+        return new BucketBuilderImpl();
     }
 
     /**

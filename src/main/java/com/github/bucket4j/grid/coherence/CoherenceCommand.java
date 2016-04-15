@@ -16,7 +16,7 @@
 
 package com.github.bucket4j.grid.coherence;
 
-import com.github.bucket4j.grid.GridCommand;
+import com.github.bucket4j.common.BucketState;
 import com.tangosol.util.InvocableMap;
 import com.tangosol.util.processor.AbstractProcessor;
 
@@ -32,7 +32,7 @@ public class CoherenceCommand<T extends Serializable> extends AbstractProcessor 
 
     @Override
     public Object process(InvocableMap.Entry entry) {
-        GridBucketState state = (GridBucketState) entry.getValue();
+        BucketState state = (BucketState) entry.getValue();
         T result = command.execute(state);
         if (command.isBucketStateModified()) {
             entry.setValue(state);
