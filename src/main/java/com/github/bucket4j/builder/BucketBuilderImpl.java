@@ -7,6 +7,8 @@ import com.github.bucket4j.grid.GridProxy;
 import com.github.bucket4j.grid.coherence.CoherenceProxy;
 import com.github.bucket4j.grid.hazelcast.HazelcastProxy;
 import com.github.bucket4j.grid.ignite.IgniteProxy;
+import com.github.bucket4j.jdbc.JdbcAdapter;
+import com.github.bucket4j.jdbc.JdbcBucket;
 import com.github.bucket4j.local.LockFreeBucket;
 import com.github.bucket4j.statistic.DummyStatisticCollector;
 import com.github.bucket4j.statistic.StatisticCollector;
@@ -19,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilder, LocalBucketBuilder {
+public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilder, LocalBucketBuilder, JdbcBucketBuilder {
 
     private StatisticCollector statisticCollector = DummyStatisticCollector.INSTANCE;
     private TimeMeter timeMeter = TimeMeter.SYSTEM_MILLISECONDS;
@@ -85,6 +87,11 @@ public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilde
     @Override
     public Bucket buildForCustomGrid(GridProxy gridProxy) {
         return new GridBucket(createStateWithConfiguration(), gridProxy);
+    }
+
+    @Override
+    public <K, T> Bucket build(K premaryKey, JdbcAdapter<K, T> jdbcAdapter, K primaryKey) {
+        return new JdbcBucket(createStateWithConfiguration(), jdbcAdapter, primaryKey);
     }
 
     private StateWithConfiguration createStateWithConfiguration() {

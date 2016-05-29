@@ -60,5 +60,4 @@ public interface DistributedBucketBuilder extends BucketBuilder {
      */
     Bucket buildForCustomGrid(GridProxy gridProxy);
 
-    Bucket buildForCustomGrid(GridProxy gridProxy);
 }
