@@ -1,7 +1,6 @@
-package com.github.bucket4j.builder;
+package com.github.bucket4j.common;
 
 import com.github.bucket4j.Bucket;
-import com.github.bucket4j.common.*;
 import com.github.bucket4j.grid.GridBucket;
 import com.github.bucket4j.grid.GridProxy;
 import com.github.bucket4j.grid.coherence.CoherenceProxy;
@@ -10,8 +9,8 @@ import com.github.bucket4j.grid.ignite.IgniteProxy;
 import com.github.bucket4j.jdbc.JdbcAdapter;
 import com.github.bucket4j.jdbc.JdbcBucket;
 import com.github.bucket4j.local.LockFreeBucket;
-import com.github.bucket4j.statistic.DummyStatisticCollector;
-import com.github.bucket4j.statistic.StatisticCollector;
+import com.github.bucket4j.statistic.DummyBucketStatistic;
+import com.github.bucket4j.statistic.BucketStatistic;
 import com.hazelcast.core.IMap;
 import com.tangosol.net.NamedCache;
 import org.apache.ignite.IgniteCache;
@@ -20,10 +19,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
-public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilder, LocalBucketBuilder, JdbcBucketBuilder {
+public class BucketBuilderImpl implements BucketBuilder {
 
-    private StatisticCollector statisticCollector = DummyStatisticCollector.INSTANCE;
+    private BucketStatistic statistic = DummyBucketStatistic.INSTANCE;
     private TimeMeter timeMeter = TimeMeter.SYSTEM_MILLISECONDS;
     private List<Bandwidth> limitedBandwidths = new ArrayList<>(1);
     private Bandwidth guaranteedBandwidth;
@@ -35,8 +35,14 @@ public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilde
     }
 
     @Override
-    public BucketBuilder setGuarantee(Bandwidth bandwidth) {
+    public BucketBuilder withGuarantee(Bandwidth bandwidth) {
         this.guaranteedBandwidth = bandwidth;
+        return this;
+    }
+
+    @Override
+    public BucketBuilder withStatistic(BucketStatistic statistic) {
+        this.statistic = Objects.requireNonNull(statistic);
         return this;
     }
 
@@ -59,14 +65,14 @@ public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilde
     }
 
     @Override
-    public BucketBuilder withStatisticCollector(StatisticCollector statisticCollector) {
-        this.statisticCollector = Objects.requireNonNull(statisticCollector);
+    public BucketBuilder withStatisticCollector(BucketStatistic bucketStatistic) {
+        this.statisticSupplier =
         return this;
     }
 
     @Override
     public Bucket build() {
-        return new LockFreeBucket(createStateWithConfiguration(), statisticCollector);
+        return new LockFreeBucket(createStateWithConfiguration(), statisticSupplier);
     }
 
     @Override
@@ -90,11 +96,11 @@ public class BucketBuilderImpl implements BucketBuilder, DistributedBucketBuilde
     }
 
     @Override
-    public <K, T> Bucket build(K premaryKey, JdbcAdapter<K, T> jdbcAdapter, K primaryKey) {
+    public <K, T> Bucket buildJdbcBucket(K primaryKey, JdbcAdapter<K, T> jdbcAdapter) {
         return new JdbcBucket(createStateWithConfiguration(), jdbcAdapter, primaryKey);
     }
 
-    private StateWithConfiguration createStateWithConfiguration() {
+    private InitialState createStateWithConfiguration() {
         return BucketState.createInitialState(timeMeter, limitedBandwidths, guaranteedBandwidth);
     }
 

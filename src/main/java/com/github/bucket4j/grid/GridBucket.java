@@ -18,7 +18,7 @@ package com.github.bucket4j.grid;
 
 import com.github.bucket4j.common.AbstractBucket;
 import com.github.bucket4j.common.BucketState;
-import com.github.bucket4j.common.StateWithConfiguration;
+import com.github.bucket4j.common.InitialState;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,10 +27,10 @@ public class GridBucket extends AbstractBucket {
 
     private final GridProxy gridProxy;
 
-    public GridBucket(StateWithConfiguration stateWithConfiguration, GridProxy gridProxy) {
-        super(stateWithConfiguration.getConfiguration());
+    public GridBucket(InitialState initialState, GridProxy gridProxy) {
+        super(initialState.getConfiguration());
         this.gridProxy = gridProxy;
-        gridProxy.setInitialState(stateWithConfiguration.getState());
+        gridProxy.setInitialState(initialState.getState());
     }
 
     @Override

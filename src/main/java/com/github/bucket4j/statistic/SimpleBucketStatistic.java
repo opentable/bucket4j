@@ -3,11 +3,10 @@ package com.github.bucket4j.statistic;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SimpleStatisticCollector implements StatisticCollector, SimpleStatisticCollectorMBean {
+public class SimpleBucketStatistic implements BucketStatistic, SimpleStatisticCollectorMBean {
 
     private final AtomicLong consumedTokens = new AtomicLong();
     private final AtomicLong rejectedTokens = new AtomicLong();
-    private final AtomicLong returnedTokens = new AtomicLong();
     private final AtomicLong interruptsCount = new AtomicLong();
     private final AtomicLong sleepingNanos = new AtomicLong();
 
@@ -22,23 +21,18 @@ public class SimpleStatisticCollector implements StatisticCollector, SimpleStati
     }
 
     @Override
-    public void registerReturnedTokens(long numTokens) {
-        returnedTokens.addAndGet(numTokens);
-    }
-
-    @Override
     public void registerInterrupt() {
         interruptsCount.incrementAndGet();
     }
 
     @Override
-    public void registerSleepingNanos(long numTokens) {
+    public void registerParkedNanos(long numTokens) {
         sleepingNanos.addAndGet(numTokens);
     }
 
     @Override
-    public StatisticSnapshot createStatisticSnapshot() {
-        return new StatisticSnapshot(getConsumedTokens(), getRejectedTokens(), getReturnedTokens(), getInterruptsCount(), getSleepingNanos());
+    public StatisticSnapshot getSnapshot() {
+        return new StatisticSnapshot(getConsumedTokens(), getRejectedTokens(), getInterruptsCount(), getSleepingNanos());
     }
 
     @Override
@@ -49,11 +43,6 @@ public class SimpleStatisticCollector implements StatisticCollector, SimpleStati
     @Override
     public long getRejectedTokens() {
         return rejectedTokens.get();
-    }
-
-    @Override
-    public long getReturnedTokens() {
-        return returnedTokens.get();
     }
 
     @Override

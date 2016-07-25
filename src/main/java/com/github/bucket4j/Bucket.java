@@ -15,9 +15,11 @@
  */
 package com.github.bucket4j;
 
-import com.github.bucket4j.builder.BucketBuilderImpl;
+import com.github.bucket4j.common.BucketBuilder;
+import com.github.bucket4j.common.BucketBuilderImpl;
 import com.github.bucket4j.builder.DistributedBucketBuilder;
 import com.github.bucket4j.builder.LocalBucketBuilder;
+import com.github.bucket4j.common.IllegalApiUsageException;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -47,18 +49,9 @@ import java.util.concurrent.ScheduledExecutorService;
 public interface Bucket {
 
     /**
-     * @return builder which performs bucket construction for local usage scenario.
+     * @return builder which performs bucket construction.
      */
-    static LocalBucketBuilder builder() {
-        return new BucketBuilderImpl();
-    }
-
-    /**
-     * Creates builder which performs bucket construction for distributed usage scenario.
-     *
-     * @return
-     */
-    static DistributedBucketBuilder distributedBuilder() {
+    static BucketBuilder builder() {
         return new BucketBuilderImpl();
     }
 
@@ -76,7 +69,7 @@ public interface Bucket {
      *
      * @param numTokens The number of tokens to consume from the bucket.
      * @return {@code true} if the tokens were consumed, {@code false} otherwise.
-     * @throws IllegalArgumentException if the requested number of tokens is negative or zero
+     * @throws IllegalApiUsageException if the requested number of tokens is negative or zero
      */
     boolean tryConsume(long numTokens);
 
@@ -93,7 +86,7 @@ public interface Bucket {
      *
      * @param limit maximum number of tokens to consume
      * @return number of tokens which has been consumed, or zero if was consumed nothing.
-     * @throws IllegalArgumentException if the specified {@code limit} is negative or zero
+     * @throws IllegalApiUsageException if the specified {@code limit} is negative or zero
      */
     long consumeAsMuchAsPossible(long limit);
 
@@ -108,7 +101,7 @@ public interface Bucket {
      * @param maxWaiting limit of time which thread can wait.
      * @return true if token has been consumed or false when token has not been consumed
      * @throws InterruptedException in case of current thread has been interrupted during waiting
-     * @throws IllegalArgumentException if the maxWaiting represents a negative or zero duration
+     * @throws IllegalApiUsageException if the maxWaiting represents a negative or zero duration
      */
     boolean tryConsumeSingleToken(Duration maxWaiting) throws InterruptedException;
 
@@ -127,7 +120,7 @@ public interface Bucket {
      * @param maxWaiting limit of time which thread can wait.
      * @param scheduler  it will be used to avoid blocling current execution  thread in case of
      * @return CompletableFuture which represents result
-     * @throws IllegalArgumentException if the maxWaiting represents a negative or zero duration
+     * @throws IllegalApiUsageException if the maxWaiting represents a negative or zero duration
      */
     CompletableFuture<Boolean> tryConsumeSingleToken(Duration maxWaiting, ScheduledExecutorService scheduler);
 
@@ -141,8 +134,8 @@ public interface Bucket {
      * @param maxWaiting limit of time which thread can wait.
      * @return {@code true} if {@code numTokens} has been consumed or {@code false} otherwise
      * @throws InterruptedException     in case of current thread has been interrupted during waiting
-     * @throws IllegalArgumentException if the requested number of numTokens is negative or zero
-     * @throws IllegalArgumentException if the maxWaiting represents a negative or zero duration
+     * @throws IllegalApiUsageException if the requested number of numTokens is negative or zero
+     * @throws IllegalApiUsageException if the maxWaiting represents a negative or zero duration
      */
     boolean tryConsume(long numTokens, Duration maxWaiting) throws InterruptedException;
 
@@ -160,8 +153,8 @@ public interface Bucket {
      * @param maxWaiting limit of time which thread can wait.
      * @param scheduler  it will be used to avoid blocking current execution  thread
      * @return CompletableFuture which represents result
-     * @throws IllegalArgumentException if the requested number of numTokens is negative or zero
-     * @throws IllegalArgumentException if the maxWaiting represents a negative or zero duration
+     * @throws IllegalApiUsageException if the requested number of numTokens is negative or zero
+     * @throws IllegalApiUsageException if the maxWaiting represents a negative or zero duration
      */
     CompletableFuture<Boolean> tryConsume(long numTokens, Duration maxWaiting, ScheduledExecutorService scheduler);
 
@@ -201,7 +194,7 @@ public interface Bucket {
      *
      * @param numTokens The number of tokens to consumeSingleToken from the bucket.
      * @throws InterruptedException     in case of current thread has been interrupted during waiting
-     * @throws IllegalArgumentException if the requested number of numTokens is negative or zero
+     * @throws IllegalApiUsageException if the requested number of numTokens is negative or zero
      */
     void consume(long numTokens) throws InterruptedException;
 
@@ -216,7 +209,7 @@ public interface Bucket {
      *
      * @param scheduler it will be used to avoid blocking current execution thread
      * @return representation of future result
-     * @throws IllegalArgumentException if the requested number of numTokens is negative or zero
+     * @throws IllegalApiUsageException if the requested number of numTokens is negative or zero
      */
     CompletableFuture<Void> consumeAsync(long numTokens, ScheduledExecutorService scheduler);
 

@@ -1,16 +1,16 @@
 package com.github.bucket4j.jdbc;
 
 import com.github.bucket4j.common.AbstractBucket;
-import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
+import com.github.bucket4j.common.InitialState;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class JdbcBucket<K, T> extends AbstractBucket {
 
-    public JdbcBucket(BucketConfiguration configuration, JdbcAdapter<K, T> adapter, K primaryKey) {
-        super(configuration);
+    public JdbcBucket(InitialState initialState, JdbcAdapter<K, T> adapter, K primaryKey) {
+        super(initialState.getConfiguration());
     }
 
     @Override

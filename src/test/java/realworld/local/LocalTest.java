@@ -17,7 +17,7 @@
 package realworld.local;
 
 import com.github.bucket4j.Bucket;
-import com.github.bucket4j.builder.BucketBuilder;
+import com.github.bucket4j.common.BucketBuilder;
 import org.junit.Test;
 import realworld.ConsumptionScenario;
 

@@ -7,14 +7,12 @@ public class StatisticSnapshot implements Serializable {
 
     private final long consumedTokens;
     private final long rejectedTokens;
-    private final long returnedTokens;
     private final long interruptsCount;
     private final long sleepingNanos;
 
-    public StatisticSnapshot(long consumedTokens, long rejectedTokens, long returnedTokens, long interruptsCount, long sleepingNanos) {
+    public StatisticSnapshot(long consumedTokens, long rejectedTokens, long interruptsCount, long sleepingNanos) {
         this.consumedTokens = consumedTokens;
         this.rejectedTokens = rejectedTokens;
-        this.returnedTokens = returnedTokens;
         this.interruptsCount = interruptsCount;
         this.sleepingNanos = sleepingNanos;
     }
@@ -25,10 +23,6 @@ public class StatisticSnapshot implements Serializable {
 
     public long getRejectedTokens() {
         return rejectedTokens;
-    }
-
-    public long getReturnedTokens() {
-        return returnedTokens;
     }
 
     public long getInterruptsCount() {
@@ -56,9 +50,9 @@ public class StatisticSnapshot implements Serializable {
         return "StatisticSnapshot{" +
                 "consumedTokens=" + consumedTokens +
                 ", rejectedTokens=" + rejectedTokens +
-                ", returnedTokens=" + returnedTokens +
                 ", interruptsCount=" + interruptsCount +
                 ", sleepingNanos=" + sleepingNanos +
                 '}';
     }
+
 }

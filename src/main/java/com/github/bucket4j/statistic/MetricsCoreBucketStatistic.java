@@ -3,22 +3,20 @@ package com.github.bucket4j.statistic;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 
-public class MetricsCoreStatisticCollector implements StatisticCollector {
+public class MetricsCoreBucketStatistic implements BucketStatistic {
 
     private final Meter consumedTokens;
     private final Meter rejectedTokens;
-    private final Meter returnedTokens;
     private final Meter interruptsCount;
     private final Meter sleepingNanos;
 
-    public MetricsCoreStatisticCollector() {
-        this(new Meter(), new Meter(), new Meter(), new Meter(), new Meter());
+    public MetricsCoreBucketStatistic() {
+        this(new Meter(), new Meter(), new Meter(), new Meter());
     }
 
-    public MetricsCoreStatisticCollector(Meter consumedTokens, Meter rejectedTokens, Meter returnedTokens, Meter interruptsCount, Meter sleepingNanos) {
+    public MetricsCoreBucketStatistic(Meter consumedTokens, Meter rejectedTokens, Meter interruptsCount, Meter sleepingNanos) {
         this.consumedTokens = consumedTokens;
         this.rejectedTokens = rejectedTokens;
-        this.returnedTokens = returnedTokens;
         this.interruptsCount = interruptsCount;
         this.sleepingNanos = sleepingNanos;
     }
@@ -34,17 +32,12 @@ public class MetricsCoreStatisticCollector implements StatisticCollector {
     }
 
     @Override
-    public void registerReturnedTokens(long numTokens) {
-        returnedTokens.mark(numTokens);
-    }
-
-    @Override
     public void registerInterrupt() {
         interruptsCount.mark();
     }
 
     @Override
-    public void registerSleepingNanos(long numTokens) {
+    public void registerParkedNanos(long numTokens) {
         sleepingNanos.mark(numTokens);
     }
 
@@ -53,7 +46,6 @@ public class MetricsCoreStatisticCollector implements StatisticCollector {
         return new StatisticSnapshot(
                 consumedTokens.getCount(),
                 rejectedTokens.getCount(),
-                returnedTokens.getCount(),
                 interruptsCount.getCount(),
                 sleepingNanos.getCount());
     }
@@ -61,7 +53,6 @@ public class MetricsCoreStatisticCollector implements StatisticCollector {
     public void registerMetrics(MetricRegistry registry, String baseName) {
         registry.register(baseName + ".consumedTokens", consumedTokens);
         registry.register(baseName + ".rejectedTokens", rejectedTokens);
-        registry.register(baseName + ".returnedTokens", returnedTokens);
         registry.register(baseName + ".interruptsCount", interruptsCount);
         registry.register(baseName + ".sleepingNanos", sleepingNanos);
     }
@@ -76,10 +67,6 @@ public class MetricsCoreStatisticCollector implements StatisticCollector {
 
     public Meter getRejectedTokens() {
         return rejectedTokens;
-    }
-
-    public Meter getReturnedTokens() {
-        return returnedTokens;
     }
 
     public Meter getSleepingNanos() {

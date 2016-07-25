@@ -16,7 +16,7 @@
 
 package com.github.bucket4j
 
-import com.github.bucket4j.builder.BucketBuilder
+import com.github.bucket4j.common.BucketBuilder
 import com.github.bucket4j.common.SmoothlyRenewableBandwidthState
 import com.github.bucket4j.common.BucketState
 import com.github.bucket4j.mock.TimeMeterMock

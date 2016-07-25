@@ -1,8 +1,8 @@
 package com.github.bucket4j.statistic;
 
-public class DummyStatisticCollector implements StatisticCollector {
+public class DummyBucketStatistic implements BucketStatistic {
 
-    public static final StatisticCollector INSTANCE = new DummyStatisticCollector();
+    public static final BucketStatistic INSTANCE = new DummyBucketStatistic();
 
     @Override
     public void registerConsumedTokens(long numTokens) {
@@ -15,17 +15,12 @@ public class DummyStatisticCollector implements StatisticCollector {
     }
 
     @Override
-    public void registerReturnedTokens(long numTokens) {
-        // do nothing
-    }
-
-    @Override
     public void registerInterrupt() {
         // do nothing
     }
 
     @Override
-    public void registerSleepingNanos(long sleepingNanos) {
+    public void registerParkedNanos(long sleepingNanos) {
         // do nothing
     }
 

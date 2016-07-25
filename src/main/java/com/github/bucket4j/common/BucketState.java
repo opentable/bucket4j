@@ -17,7 +17,6 @@
 package com.github.bucket4j.common;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,7 +54,7 @@ public class BucketState implements Serializable {
         System.arraycopy(sourceState.state, 0, state, 0, state.length);
     }
 
-    public static StateWithConfiguration createInitialState(TimeMeter timeMeter, List<Bandwidth> limitedBandwidths, Bandwidth guaranteedBandwidth) {
+    public static InitialState createInitialState(TimeMeter timeMeter, List<Bandwidth> limitedBandwidths, Bandwidth guaranteedBandwidth) {
         Preconditions.checkCompatibility(limitedBandwidths, guaranteedBandwidth);
 
         long currentTimeNanos = timeMeter.currentTimeNanos();
@@ -73,7 +72,7 @@ public class BucketState implements Serializable {
 
         BucketState bucketState = new BucketState(stateInitializer.getState());
         BucketConfiguration bucketConfiguration = new BucketConfiguration(limitedBandwidthStates, guaranteedBandwidthState, timeMeter);
-        return new StateWithConfiguration(bucketConfiguration, bucketState);
+        return new InitialState(bucketConfiguration, bucketState);
     }
 
     public long getAvailableTokens(BandwidthState[] limitedBandwidths, BandwidthState guaranteedBandwidth) {

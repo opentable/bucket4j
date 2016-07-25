@@ -1,11 +1,11 @@
 package com.github.bucket4j.common;
 
-public class StateWithConfiguration {
+public class InitialState {
 
     private final BucketConfiguration configuration;
     private final BucketState state;
 
-    public StateWithConfiguration(BucketConfiguration configuration, BucketState state) {
+    public InitialState(BucketConfiguration configuration, BucketState state) {
         this.configuration = configuration;
         this.state = state;
     }

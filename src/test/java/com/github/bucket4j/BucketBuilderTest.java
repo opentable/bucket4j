@@ -16,7 +16,7 @@
 
 package com.github.bucket4j;
 
-import com.github.bucket4j.builder.BucketBuilder;
+import com.github.bucket4j.common.BucketBuilder;
 import org.junit.Test;
 
 import java.time.Duration;

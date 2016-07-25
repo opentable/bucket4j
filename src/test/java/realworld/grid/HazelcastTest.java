@@ -17,7 +17,7 @@
 package realworld.grid;
 
 import com.github.bucket4j.Bucket;
-import com.github.bucket4j.builder.BucketBuilder;
+import com.github.bucket4j.common.BucketBuilder;
 import com.github.bucket4j.common.BucketState;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;

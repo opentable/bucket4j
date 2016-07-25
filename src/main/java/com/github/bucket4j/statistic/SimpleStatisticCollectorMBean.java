@@ -6,8 +6,6 @@ public interface SimpleStatisticCollectorMBean {
 
     long getRejectedTokens();
 
-    long getReturnedTokens();
-
     long getInterruptsCount();
 
     long getSleepingNanos();

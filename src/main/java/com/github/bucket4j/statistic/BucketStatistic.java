@@ -4,17 +4,15 @@ package com.github.bucket4j.statistic;
  * Collects statistics of the bucket.
  *
  */
-public interface StatisticCollector {
+public interface BucketStatistic {
 
     void registerConsumedTokens(long numTokens);
 
     void registerRejectedTokens(long numTokens);
 
-    void registerReturnedTokens(long numTokens);
-
     void registerInterrupt();
 
-    void registerSleepingNanos(long sleepingNanos);
+    void registerParkedNanos(long sleepingNanos);
 
     /**
      * Creates snapshot of bucket statistic which actual on the moment of invocation.

@@ -17,7 +17,7 @@ package com.github.bucket4j.local;
 
 
 import com.github.bucket4j.common.*;
-import com.github.bucket4j.statistic.StatisticCollector;
+import com.github.bucket4j.statistic.BucketStatistic;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,13 +26,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public class LockFreeBucket extends AbstractBucket {
 
     private final AtomicReference<BucketState> stateReference;
-    private final StatisticCollector statisticCollector;
+    private final BucketStatistic bucketStatistic;
 
-    public LockFreeBucket(StateWithConfiguration stateWithConfiguration, StatisticCollector statisticCollector) {
+    public LockFreeBucket(InitialState stateWithConfiguration, BucketStatistic bucketStatistic) {
         super(stateWithConfiguration.getConfiguration());
         BucketState initialState = stateWithConfiguration.getState();
         this.stateReference = new AtomicReference<>(initialState);
-        this.statisticCollector = statisticCollector;
+        this.bucketStatistic = bucketStatistic;
     }
 
     @Override

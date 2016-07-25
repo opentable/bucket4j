@@ -17,7 +17,7 @@
 package com.github.bucket4j.mock;
 
 import com.github.bucket4j.Bucket;
-import com.github.bucket4j.builder.BucketBuilder;
+import com.github.bucket4j.common.BucketBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

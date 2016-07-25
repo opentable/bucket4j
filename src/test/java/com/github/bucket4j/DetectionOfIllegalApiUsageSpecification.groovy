@@ -22,8 +22,8 @@ import spock.lang.Unroll
 import java.time.Duration
 
 import static com.github.bucket4j.impl.BucketExceptions.*
-import static com.github.bucket4j.builder.BucketBuilder.forCustomTimePrecision
-import static com.github.bucket4j.builder.BucketBuilder.forNanosecondPrecision
+import static com.github.bucket4j.common.BucketBuilder.forCustomTimePrecision
+import static com.github.bucket4j.common.BucketBuilder.forNanosecondPrecision
 
 public class DetectionOfIllegalApiUsageSpecification extends Specification {
 
