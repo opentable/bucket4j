@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 public class BucketBuilderImpl implements BucketBuilder {
 
     private BucketStatistic statistic = DummyBucketStatistic.INSTANCE;
+
     private TimeMeter timeMeter = TimeMeter.SYSTEM_MILLISECONDS;
     private List<Bandwidth> limitedBandwidths = new ArrayList<>(1);
     private Bandwidth guaranteedBandwidth;
@@ -65,14 +66,8 @@ public class BucketBuilderImpl implements BucketBuilder {
     }
 
     @Override
-    public BucketBuilder withStatisticCollector(BucketStatistic bucketStatistic) {
-        this.statisticSupplier =
-        return this;
-    }
-
-    @Override
     public Bucket build() {
-        return new LockFreeBucket(createStateWithConfiguration(), statisticSupplier);
+        return new LockFreeBucket(createStateWithConfiguration(), statistic);
     }
 
     @Override

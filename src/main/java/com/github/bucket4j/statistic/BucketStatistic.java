@@ -14,12 +14,4 @@ public interface BucketStatistic {
 
     void registerParkedNanos(long sleepingNanos);
 
-    /**
-     * Creates snapshot of bucket statistic which actual on the moment of invocation.
-     *
-     * @return snapshot of bucket statistic
-     * @throws IllegalStateException if statistic collector is not configured for this bucket during construction
-     */
-    StatisticSnapshot getSnapshot();
-
 }
