@@ -17,7 +17,6 @@
 package com.github.bucket4j.grid;
 
 import com.github.bucket4j.common.BandwidthState;
-import com.github.bucket4j.common.SmoothlyRenewableBandwidthState;
 import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
 

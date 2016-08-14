@@ -16,7 +16,9 @@
 
 package com.github.bucket4j.grid.coherence;
 
+import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
+import com.github.bucket4j.grid.GridCommand;
 import com.tangosol.util.InvocableMap;
 import com.tangosol.util.processor.AbstractProcessor;
 
@@ -25,16 +27,25 @@ import java.io.Serializable;
 public class CoherenceCommand<T extends Serializable> extends AbstractProcessor {
 
     private final GridCommand<T> command;
+    private final BucketConfiguration configuration;
 
-    public CoherenceCommand(GridCommand<T> command) {
+    public CoherenceCommand(GridCommand<T> command, BucketConfiguration configuration) {
         this.command = command;
+        this.configuration = configuration;
     }
 
     @Override
     public Object process(InvocableMap.Entry entry) {
+        boolean restoredFromCrash = false;
         BucketState state = (BucketState) entry.getValue();
-        T result = command.execute(state);
-        if (command.isBucketStateModified()) {
+        if (state == null) {
+            // The state is missed, looks like outage happen in the GRID, so lets recreate initial state
+            state = BucketState.createInitialState(configuration);
+            restoredFromCrash = true;
+        }
+
+        T result = command.execute(state, configuration);
+        if (command.isBucketStateModified() || restoredFromCrash) {
             entry.setValue(state);
         }
         return result;

@@ -16,6 +16,7 @@
 
 package com.github.bucket4j.grid.ignite;
 
+import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
 import com.github.bucket4j.grid.GridCommand;
 
@@ -26,12 +27,26 @@ import java.io.Serializable;
 
 public class IgniteCommand<T extends Serializable> implements EntryProcessor<Object, BucketState, T> {
 
+    private final GridCommand<T> targetCommand;
+    private final BucketConfiguration configuration;
+
+    public IgniteCommand(GridCommand<T> targetCommand, BucketConfiguration configuration) {
+        this.targetCommand = targetCommand;
+        this.configuration = configuration;
+    }
+
     @Override
     public T process(MutableEntry<Object, BucketState> mutableEntry, Object... arguments) throws EntryProcessorException {
-        GridCommand<T> targetCommand = (GridCommand<T>) arguments[0];
         BucketState state = mutableEntry.getValue();
-        T result = targetCommand.execute(state);
-        if (targetCommand.isBucketStateModified()) {
+        boolean restoredFromCrash = false;
+        if (state == null) {
+            // The state is missed, looks like outage happen in the GRID, so lets recreate initial state
+            state = BucketState.createInitialState(configuration);
+            restoredFromCrash = true;
+        }
+
+        T result = targetCommand.execute(state, configuration);
+        if (targetCommand.isBucketStateModified() || restoredFromCrash) {
             mutableEntry.setValue(state);
         }
         return result;

@@ -16,7 +16,10 @@
 
 package com.github.bucket4j.grid.hazelcast;
 
+import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
+import com.github.bucket4j.grid.GridCommand;
+import com.github.bucket4j.grid.GridProxy;
 import com.hazelcast.core.IMap;
 
 import java.io.Serializable;
@@ -25,15 +28,17 @@ public class HazelcastProxy implements GridProxy {
 
     private final IMap<Object, BucketState> map;
     private final Serializable key;
+    private final BucketConfiguration configuration;
 
-    public HazelcastProxy(IMap<Object, BucketState> map, Serializable key) {
+    public HazelcastProxy(IMap<Object, BucketState> map, Serializable key, BucketConfiguration configuration) {
         this.map = map;
         this.key = key;
+        this.configuration = configuration;
     }
 
     @Override
     public <T extends Serializable> T execute(GridCommand<T> command) {
-        HazelcastCommand entryProcessor = new HazelcastCommand(command);
+        HazelcastCommand entryProcessor = new HazelcastCommand(command, configuration);
         return (T) map.executeOnKey(key, entryProcessor);
     }
 

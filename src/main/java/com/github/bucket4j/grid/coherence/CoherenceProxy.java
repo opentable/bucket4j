@@ -16,6 +16,7 @@
 
 package com.github.bucket4j.grid.coherence;
 
+import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
 import com.github.bucket4j.grid.GridCommand;
 import com.github.bucket4j.grid.GridProxy;
@@ -30,15 +31,17 @@ public class CoherenceProxy implements GridProxy {
 
     private final NamedCache cache;
     private final Object key;
+    private final BucketConfiguration configuration;
 
-    public CoherenceProxy(NamedCache cache, Object key) {
+    public CoherenceProxy(NamedCache cache, Object key, BucketConfiguration configuration) {
         this.cache = cache;
         this.key = key;
+        this.configuration = configuration;
     }
 
     @Override
     public <T extends Serializable> T execute(GridCommand<T> command) {
-        CoherenceCommand<T> entryProcessor = new CoherenceCommand<>(command);
+        CoherenceCommand<T> entryProcessor = new CoherenceCommand<>(command, configuration);
         return (T) cache.invoke(key, entryProcessor);
     }
 

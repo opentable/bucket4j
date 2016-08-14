@@ -16,7 +16,10 @@
 
 package com.github.bucket4j.grid.ignite;
 
+import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
+import com.github.bucket4j.grid.GridCommand;
+import com.github.bucket4j.grid.GridProxy;
 import org.apache.ignite.IgniteCache;
 
 import java.io.Serializable;
@@ -25,15 +28,17 @@ public class IgniteProxy implements GridProxy {
 
     private final IgniteCache<Object, BucketState> cache;
     private final Object key;
+    private final BucketConfiguration configuration;
 
-    public IgniteProxy(IgniteCache<Object, BucketState> cache, Object key) {
+    public IgniteProxy(IgniteCache<Object, BucketState> cache, Object key, BucketConfiguration configuration) {
         this.cache = cache;
         this.key = key;
+        this.configuration = configuration;
     }
 
     @Override
     public <T extends Serializable> T execute(GridCommand<T> command) {
-        return cache.invoke(key, new IgniteCommand<T>(), command);
+        return cache.invoke(key, new IgniteCommand<>(command, configuration));
     }
 
     @Override

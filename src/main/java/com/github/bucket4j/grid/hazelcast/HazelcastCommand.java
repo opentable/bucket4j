@@ -16,7 +16,9 @@
 
 package com.github.bucket4j.grid.hazelcast;
 
+import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
+import com.github.bucket4j.grid.GridCommand;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 
@@ -26,19 +28,29 @@ import java.util.Map;
 public class HazelcastCommand<T extends Serializable> implements EntryProcessor<Object, BucketState>, Serializable {
 
     private final GridCommand<T> targetCommand;
+    private final BucketConfiguration configuration;
+
     private BucketState snapshotToBackup;
 
-    public HazelcastCommand(GridCommand<T> targetCommand) {
+    public HazelcastCommand(GridCommand<T> targetCommand, BucketConfiguration configuration) {
         this.targetCommand = targetCommand;
+        this.configuration = configuration;
     }
 
     @Override
     public T process(Map.Entry<Object, BucketState> entry) {
-        BucketState gridState = entry.getValue();
-        T result = targetCommand.execute(gridState);
-        if (targetCommand.isBucketStateModified()) {
-            entry.setValue(gridState);
-            snapshotToBackup = gridState.getBucketState().clone();
+        BucketState state = entry.getValue();
+        boolean restoredFromCrash = false;
+        if (state == null) {
+            // The state is missed, looks like outage happen in the GRID, so lets recreate initial state
+            state = BucketState.createInitialState(configuration);
+            restoredFromCrash = true;
+        }
+
+        T result = targetCommand.execute(state, configuration);
+        if (targetCommand.isBucketStateModified() || restoredFromCrash) {
+            entry.setValue(state);
+            snapshotToBackup = state.clone();
         }
         return result;
     }
