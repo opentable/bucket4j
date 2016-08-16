@@ -18,16 +18,21 @@ package com.github.bucket4j.common;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public final class BucketConfiguration implements Serializable {
 
-    private final BandwidthState[] limitedBandwidths;
-    private final BandwidthState guaranteedBandwidth;
+    private final BandwidthDefinition guaranteedBandwidthDefinition;
+    private final List<BandwidthDefinition> limitedBandwidthsDefinitions;
+    private final Bandwidth[] limitedBandwidths;
+    private final Bandwidth guaranteedBandwidth;
     private final TimeMeter timeMeter;
 
-    public BucketConfiguration(BandwidthState[] limitedBandwidths, BandwidthState guaranteedBandwidth, TimeMeter timeMeter) {
+    BucketConfiguration(List<BandwidthDefinition> limitedBandwidthsDefinitions, BandwidthDefinition guaranteedBandwidthDefinition, Bandwidth[] limitedBandwidths, Bandwidth guaranteedBandwidth, TimeMeter timeMeter) {
         this.timeMeter = Objects.requireNonNull(timeMeter);
+        this.limitedBandwidthsDefinitions = limitedBandwidthsDefinitions;
+        this.guaranteedBandwidthDefinition = guaranteedBandwidthDefinition;
         this.limitedBandwidths = Objects.requireNonNull(limitedBandwidths);
         this.guaranteedBandwidth = guaranteedBandwidth;
     }
@@ -36,12 +41,20 @@ public final class BucketConfiguration implements Serializable {
         return timeMeter;
     }
 
-    public BandwidthState[] getLimitedBandwidths() {
+    public Bandwidth[] getLimitedBandwidths() {
         return limitedBandwidths;
     }
 
-    public BandwidthState getGuaranteedBandwidth() {
+    public Bandwidth getGuaranteedBandwidth() {
         return guaranteedBandwidth;
+    }
+
+    public BandwidthDefinition getGuaranteedBandwidthDefinition() {
+        return guaranteedBandwidthDefinition;
+    }
+
+    public List<BandwidthDefinition> getLimitedBandwidthsDefinitions() {
+        return limitedBandwidthsDefinitions;
     }
 
     @Override

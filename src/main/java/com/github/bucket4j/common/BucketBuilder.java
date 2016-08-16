@@ -45,7 +45,7 @@ public interface BucketBuilder {
      *
      * @return this builder instance
      */
-    BucketBuilder addLimit(Bandwidth bandwidth);
+    BucketBuilder addLimit(BandwidthDefinition bandwidth);
 
     /**
      * Set guaranteed bandwidth for all buckets which will be constructed by this builder instance.
@@ -60,7 +60,7 @@ public interface BucketBuilder {
      * @return this builder instance
      * @throws IllegalApiUsageException if guarantee already set
      */
-    BucketBuilder withGuarantee(Bandwidth bandwidth);
+    BucketBuilder withGuarantee(BandwidthDefinition bandwidth);
 
     /**
      * Configures the bucket static.

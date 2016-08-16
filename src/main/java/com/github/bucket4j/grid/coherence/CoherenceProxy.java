@@ -31,16 +31,14 @@ public class CoherenceProxy implements GridProxy {
 
     private final NamedCache cache;
     private final Object key;
-    private final BucketConfiguration configuration;
 
-    public CoherenceProxy(NamedCache cache, Object key, BucketConfiguration configuration) {
+    public CoherenceProxy(NamedCache cache, Object key) {
         this.cache = cache;
         this.key = key;
-        this.configuration = configuration;
     }
 
     @Override
-    public <T extends Serializable> T execute(GridCommand<T> command) {
+    public <T extends Serializable> T execute(GridCommand<T> command, BucketConfiguration configuration) {
         CoherenceCommand<T> entryProcessor = new CoherenceCommand<>(command, configuration);
         return (T) cache.invoke(key, entryProcessor);
     }

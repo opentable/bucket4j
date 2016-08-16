@@ -16,13 +16,14 @@
 
 package com.github.bucket4j.grid;
 
+import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
 
 import java.io.Serializable;
 
 public interface GridProxy {
 
-    <T extends Serializable> T execute(GridCommand<T> command);
+    <T extends Serializable> T execute(GridCommand<T> command, BucketConfiguration configuration);
 
     void setInitialState(BucketState initialState);
 

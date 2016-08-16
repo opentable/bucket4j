@@ -16,6 +16,7 @@
 package com.github.bucket4j.common;
 
 import com.github.bucket4j.Bucket;
+import com.github.bucket4j.statistic.BucketStatistic;
 
 import java.text.MessageFormat;
 import java.time.Duration;
@@ -26,11 +27,6 @@ import java.util.concurrent.ScheduledExecutorService;
 public abstract class AbstractBucket implements Bucket {
 
     protected static final long UNSPECIFIED_WAITING_LIMIT = -1;
-    protected final BucketConfiguration configuration;
-
-    protected AbstractBucket(BucketConfiguration configuration) {
-        this.configuration = configuration;
-    }
 
     protected abstract long consumeAsMuchAsPossibleImpl(long limit);
 
@@ -41,16 +37,6 @@ public abstract class AbstractBucket implements Bucket {
     protected abstract boolean consumeOrAwaitImpl(long tokensToConsume, long waitIfBusyNanos) throws InterruptedException;
 
     protected abstract void applySnapshotImpl(BucketState bucketState);
-
-    /**
-     * Returns configuration of bucket.
-     *
-     * @return Bucket configuration
-     */
-    public BucketConfiguration getConfiguration() {
-        return configuration;
-    }
-
 
     /**
      * Creates snapshot of bucket state.

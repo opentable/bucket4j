@@ -54,32 +54,38 @@ public class BucketState implements Serializable {
         System.arraycopy(sourceState.state, 0, state, 0, state.length);
     }
 
-    public static InitialState createInitialState(TimeMeter timeMeter, List<Bandwidth> limitedBandwidths, Bandwidth guaranteedBandwidth) {
-        Preconditions.checkCompatibility(limitedBandwidths, guaranteedBandwidth);
+    public static BucketState createInitialState(BucketConfiguration configuration) {
+        InitialState initialState = createInitialState(
+                configuration.getLimitedBandwidthsDefinitions(),
+                configuration.getGuaranteedBandwidthDefinition(),
+                configuration.getTimeMeter());
+        return initialState.getState();
+    }
 
+    public static InitialState createInitialState(List<BandwidthDefinition> limitedBandwidthsDefinitions, BandwidthDefinition guaranteedBandwidthDefinition, TimeMeter timeMeter) {
         long currentTimeNanos = timeMeter.currentTimeNanos();
         StateInitializer stateInitializer = new StateInitializer(new long[] {currentTimeNanos});
 
-        BandwidthState guaranteedBandwidthState = null;
-        if (guaranteedBandwidth != null) {
-            guaranteedBandwidthState = guaranteedBandwidth.createInitialBandwidthState(stateInitializer, currentTimeNanos);
+        Bandwidth guaranteedBandwidth = null;
+        if (guaranteedBandwidthDefinition != null) {
+            guaranteedBandwidth = guaranteedBandwidthDefinition.createBandwidth(stateInitializer, currentTimeNanos);
         }
 
-        BandwidthState[] limitedBandwidthStates = new BandwidthState[limitedBandwidths.size()];
-        for (int i = 0; i < limitedBandwidthStates.length; i++) {
-            limitedBandwidthStates[i] = limitedBandwidths.get(i).createInitialBandwidthState(stateInitializer, currentTimeNanos);
+        Bandwidth[] limitedBandwidth = new Bandwidth[limitedBandwidthsDefinitions.size()];
+        for (int i = 0; i < limitedBandwidth.length; i++) {
+            limitedBandwidth[i] = limitedBandwidthsDefinitions.get(i).createBandwidth(stateInitializer, currentTimeNanos);
         }
 
         BucketState bucketState = new BucketState(stateInitializer.getState());
-        BucketConfiguration bucketConfiguration = new BucketConfiguration(limitedBandwidthStates, guaranteedBandwidthState, timeMeter);
+        BucketConfiguration bucketConfiguration = new BucketConfiguration(limitedBandwidthsDefinitions, guaranteedBandwidthDefinition, limitedBandwidth, guaranteedBandwidth, timeMeter);
         return new InitialState(bucketConfiguration, bucketState);
     }
 
-    public long getAvailableTokens(BandwidthState[] limitedBandwidths, BandwidthState guaranteedBandwidth) {
+    public long getAvailableTokens(Bandwidth[] limitedBandwidths, Bandwidth guaranteedBandwidth) {
         double availableByGuarantee = 0;
         double availableByLimitation = Long.MAX_VALUE;
         for (int i = 0; i < limitedBandwidths.length; i++) {
-            BandwidthState bandwidth = limitedBandwidths[i];
+            Bandwidth bandwidth = limitedBandwidths[i];
             double currentSize = state[i + 1];
             if (bandwidth.isLimited()) {
                 availableByLimitation = Math.min(availableByLimitation, currentSize);
@@ -96,21 +102,19 @@ public class BucketState implements Serializable {
         }
     }
 
-    public long delayNanosAfterWillBePossibleToConsume(SmoothlyRenewableBandwidthState[] bandwidths, long currentTime, long tokensToConsume) {
-        long delayAfterWillBePossibleToConsumeLimited = 0;
+    public long delayNanosAfterWillBePossibleToConsume(Bandwidth[] limitedBandwidths, Bandwidth guaranteedBandwidth,  long currentTime, long tokensToConsume) {
         long delayAfterWillBePossibleToConsumeGuaranteed = Long.MAX_VALUE;
-        for (int i = 0; i < bandwidths.length; i++) {
-            SmoothlyRenewableBandwidthState bandwidth = bandwidths[i];
-            double currentSize = state[i + 1];
-            long delay = bandwidth.delayNanosAfterWillBePossibleToConsume(currentSize, currentTime, tokensToConsume);
-            if (bandwidth.isGuaranteed()) {
-                if (delay == 0) {
-                    return 0;
-                } else {
-                    delayAfterWillBePossibleToConsumeGuaranteed = delay;
-                }
-                continue;
+        if (guaranteedBandwidth != null) {
+            delayAfterWillBePossibleToConsumeGuaranteed = guaranteedBandwidth.delayNanosAfterWillBePossibleToConsume(this, currentTime, tokensToConsume);
+            if (delayAfterWillBePossibleToConsumeGuaranteed == 0) {
+                return 0;
             }
+        }
+
+        long delayAfterWillBePossibleToConsumeLimited = 0;
+        for (int i = 0; i < limitedBandwidths.length; i++) {
+            Bandwidth bandwidth = limitedBandwidths[i];
+            long delay = bandwidth.delayNanosAfterWillBePossibleToConsume(this, currentTime, tokensToConsume);
             if (delay > delayAfterWillBePossibleToConsumeLimited) {
                 delayAfterWillBePossibleToConsumeLimited = delay;
             }
@@ -118,15 +122,17 @@ public class BucketState implements Serializable {
         return Math.min(delayAfterWillBePossibleToConsumeLimited, delayAfterWillBePossibleToConsumeGuaranteed);
     }
 
-    public void refill(BandwidthState[] bandwidths, long currentTimeNanos) {
+    public void refill(Bandwidth[] bandwidths, Bandwidth guaranteedBandwidth, long currentTimeNanos) {
         long lastRefillTimeNanos = getLastRefillTimeNanos();
         if (lastRefillTimeNanos == currentTimeNanos) {
             return;
         }
         for (int i = 0; i < bandwidths.length; i++) {
-            BandwidthState bandwidth = bandwidths[i];
-            double currentSize = state[i + 1];
-            state[i + 1] = bandwidth.getNewSize(currentSize, lastRefillTimeNanos, currentTimeNanos);
+            Bandwidth bandwidth = bandwidths[i];
+            bandwidth.refill(this, lastRefillTimeNanos, currentTimeNanos);
+        }
+        if (guaranteedBandwidth != null) {
+            guaranteedBandwidth.refill(this, lastRefillTimeNanos, currentTimeNanos);
         }
         setLastRefillTime(currentTimeNanos);
     }

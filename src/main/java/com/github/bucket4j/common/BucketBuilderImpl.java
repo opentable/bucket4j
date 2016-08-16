@@ -26,17 +26,17 @@ public class BucketBuilderImpl implements BucketBuilder {
     private BucketStatistic statistic = DummyBucketStatistic.INSTANCE;
 
     private TimeMeter timeMeter = TimeMeter.SYSTEM_MILLISECONDS;
-    private List<Bandwidth> limitedBandwidths = new ArrayList<>(1);
-    private Bandwidth guaranteedBandwidth;
+    private List<BandwidthDefinition> limitedBandwidths = new ArrayList<>(1);
+    private BandwidthDefinition guaranteedBandwidth;
 
     @Override
-    public BucketBuilder addLimit(Bandwidth bandwidth) {
+    public BucketBuilder addLimit(BandwidthDefinition bandwidth) {
         limitedBandwidths.add(bandwidth);
         return this;
     }
 
     @Override
-    public BucketBuilder withGuarantee(Bandwidth bandwidth) {
+    public BucketBuilder withGuarantee(BandwidthDefinition bandwidth) {
         this.guaranteedBandwidth = bandwidth;
         return this;
     }
@@ -65,6 +65,7 @@ public class BucketBuilderImpl implements BucketBuilder {
         return this;
     }
 
+
     @Override
     public Bucket build() {
         return new LockFreeBucket(createStateWithConfiguration(), statistic);
@@ -72,22 +73,35 @@ public class BucketBuilderImpl implements BucketBuilder {
 
     @Override
     public Bucket buildHazelcast(IMap<Object, BucketState> imap, Serializable key) {
-        return new GridBucket(createStateWithConfiguration(), new HazelcastProxy(imap, key));
+        HazelcastProxy hazelcastProxy = new HazelcastProxy(imap, key);
+        InitialState stateWithConfiguration = createStateWithConfiguration();
+        BucketState state = stateWithConfiguration.getState();
+        BucketConfiguration configuration = stateWithConfiguration.getConfiguration();
+        return new GridBucket(state, configuration, hazelcastProxy);
     }
 
     @Override
     public Bucket buildIgnite(IgniteCache<Object, BucketState> cache, Serializable key) {
-        return new GridBucket(createStateWithConfiguration(), new IgniteProxy(cache, key));
+        InitialState stateWithConfiguration = createStateWithConfiguration();
+        BucketState state = stateWithConfiguration.getState();
+        BucketConfiguration configuration = stateWithConfiguration.getConfiguration();
+        IgniteProxy igniteProxy = new IgniteProxy(cache, key);
+        return new GridBucket(state, configuration, igniteProxy);
     }
 
     @Override
     public Bucket buildCoherence(NamedCache cache, Serializable key) {
-        return new GridBucket(createStateWithConfiguration(), new CoherenceProxy(cache, key));
+        InitialState stateWithConfiguration = createStateWithConfiguration();
+        BucketState state = stateWithConfiguration.getState();
+        BucketConfiguration configuration = stateWithConfiguration.getConfiguration();
+        CoherenceProxy coherenceProxy = new CoherenceProxy(cache, key);
+        return new GridBucket(state, configuration, coherenceProxy);
     }
 
     @Override
     public Bucket buildForCustomGrid(GridProxy gridProxy) {
-        return new GridBucket(createStateWithConfiguration(), gridProxy);
+        InitialState stateWithConfiguration = createStateWithConfiguration();
+        return new GridBucket(stateWithConfiguration.getState(), stateWithConfiguration.getConfiguration(), gridProxy);
     }
 
     @Override
@@ -96,7 +110,7 @@ public class BucketBuilderImpl implements BucketBuilder {
     }
 
     private InitialState createStateWithConfiguration() {
-        return BucketState.createInitialState(timeMeter, limitedBandwidths, guaranteedBandwidth);
+        return BucketState.createInitialState(limitedBandwidths, guaranteedBandwidth, timeMeter);
     }
 
     @Override

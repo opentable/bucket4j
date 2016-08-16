@@ -28,16 +28,14 @@ public class IgniteProxy implements GridProxy {
 
     private final IgniteCache<Object, BucketState> cache;
     private final Object key;
-    private final BucketConfiguration configuration;
 
-    public IgniteProxy(IgniteCache<Object, BucketState> cache, Object key, BucketConfiguration configuration) {
+    public IgniteProxy(IgniteCache<Object, BucketState> cache, Object key) {
         this.cache = cache;
         this.key = key;
-        this.configuration = configuration;
     }
 
     @Override
-    public <T extends Serializable> T execute(GridCommand<T> command) {
+    public <T extends Serializable> T execute(GridCommand<T> command, BucketConfiguration configuration) {
         return cache.invoke(key, new IgniteCommand<>(command, configuration));
     }
 

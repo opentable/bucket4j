@@ -28,16 +28,14 @@ public class HazelcastProxy implements GridProxy {
 
     private final IMap<Object, BucketState> map;
     private final Serializable key;
-    private final BucketConfiguration configuration;
 
-    public HazelcastProxy(IMap<Object, BucketState> map, Serializable key, BucketConfiguration configuration) {
+    public HazelcastProxy(IMap<Object, BucketState> map, Serializable key) {
         this.map = map;
         this.key = key;
-        this.configuration = configuration;
     }
 
     @Override
-    public <T extends Serializable> T execute(GridCommand<T> command) {
+    public <T extends Serializable> T execute(GridCommand<T> command, BucketConfiguration configuration) {
         HazelcastCommand entryProcessor = new HazelcastCommand(command, configuration);
         return (T) map.executeOnKey(key, entryProcessor);
     }

@@ -16,7 +16,7 @@
 
 package com.github.bucket4j.grid;
 
-import com.github.bucket4j.common.BandwidthState;
+import com.github.bucket4j.common.Bandwidth;
 import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
 
@@ -32,7 +32,7 @@ public class TryConsumeCommand implements GridCommand<Boolean> {
     @Override
     public Boolean execute(BucketState state, BucketConfiguration configuration) {
         long currentTimeNanos = configuration.getTimeMeter().currentTimeNanos();
-        BandwidthState[] bandwidths = configuration.getLimitedBandwidths();
+        Bandwidth[] bandwidths = configuration.getLimitedBandwidths();
         state.refill(bandwidths, currentTimeNanos);
         long availableToConsume = state.getAvailableTokens(bandwidths);
         if (tokensToConsume <= availableToConsume) {

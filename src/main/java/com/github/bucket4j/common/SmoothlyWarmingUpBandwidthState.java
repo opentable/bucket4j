@@ -3,7 +3,7 @@ package com.github.bucket4j.common;
 
 import java.time.Duration;
 
-public class SmoothlyWarmingUpBandwidthState implements BandwidthState {
+public class SmoothlyWarmingUpBandwidthState implements Bandwidth {
 
     private final double fromValue;
     private final double toValue;
@@ -15,13 +15,8 @@ public class SmoothlyWarmingUpBandwidthState implements BandwidthState {
         this.warmupNanos = warmupDuration.toNanos();
     }
 
-    public static Bandwidth bandwidth(long periodNanos, long fromCapacity, long toCapacity, long warmingUpNanos, long initialCapacity) {
+    public static BandwidthDefinition bandwidth(long periodNanos, long fromCapacity, long toCapacity, long warmingUpNanos, long initialCapacity) {
         return null;
-    }
-
-    @Override
-    public double getInitialValue(long initializationTimeNanos) {
-        return fromValue;
     }
 
     @Override
@@ -40,28 +35,19 @@ public class SmoothlyWarmingUpBandwidthState implements BandwidthState {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        SmoothlyWarmingUpBandwidthState that = (SmoothlyWarmingUpBandwidthState) o;
-
-        if (Double.compare(that.fromValue, fromValue) != 0) return false;
-        if (Double.compare(that.toValue, toValue) != 0) return false;
-        return warmupNanos == that.warmupNanos;
-
+    public void refill(BucketState state, long lastRefillTimeNanos, long currentTimeNanos) {
+        // TODO
     }
 
     @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        temp = Double.doubleToLongBits(fromValue);
-        result = (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(toValue);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (int) (warmupNanos ^ (warmupNanos >>> 32));
-        return result;
+    public long delayNanosAfterWillBePossibleToConsume(BucketState state, long currentTimeNanos, double tokens) {
+        // TODO
+        return 0;
     }
 
+    @Override
+    public long reserve(BucketState state, double tokens) {
+        // TODO
+        return 0;
+    }
 }

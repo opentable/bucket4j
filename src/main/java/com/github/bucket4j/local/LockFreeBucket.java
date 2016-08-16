@@ -94,7 +94,7 @@ public class LockFreeBucket extends AbstractBucket {
 
     @Override
     protected boolean consumeOrAwaitImpl(long tokensToConsume, long waitIfBusyTimeLimit) throws InterruptedException {
-        SmoothlyRenewableBandwidthState[] bandwidths = configuration.getBandwidths();
+        SmoothlyRenewableBandwidth[] bandwidths = configuration.getBandwidths();
         boolean isWaitingLimited = waitIfBusyTimeLimit > 0;
 
         final long methodStartTimeNanos = configuration.getTimeMeter().currentTimeNanos();

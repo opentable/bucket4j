@@ -17,6 +17,7 @@
 package com.github.bucket4j.grid;
 
 import com.github.bucket4j.common.AbstractBucket;
+import com.github.bucket4j.common.BucketConfiguration;
 import com.github.bucket4j.common.BucketState;
 import com.github.bucket4j.common.InitialState;
 
@@ -26,21 +27,24 @@ import java.util.concurrent.ScheduledExecutorService;
 public class GridBucket extends AbstractBucket {
 
     private final GridProxy gridProxy;
+    private final BucketConfiguration configuration;
 
-    public GridBucket(InitialState initialState, GridProxy gridProxy) {
-        super(initialState.getConfiguration());
+    public GridBucket(BucketState initialState, BucketConfiguration configuration, GridProxy gridProxy) {
         this.gridProxy = gridProxy;
-        gridProxy.setInitialState(initialState.getState());
+        this.configuration = configuration;
+        gridProxy.setInitialState(initialState);
     }
 
     @Override
     protected long consumeAsMuchAsPossibleImpl(long limit) {
-        return gridProxy.execute(new ConsumeAsMuchAsPossibleCommand(limit));
+        ConsumeAsMuchAsPossibleCommand command = new ConsumeAsMuchAsPossibleCommand(limit);
+        return gridProxy.execute(command, configuration);
     }
 
     @Override
     protected boolean tryConsumeImpl(long tokensToConsume) {
-        return gridProxy.execute(new TryConsumeCommand(tokensToConsume));
+        TryConsumeCommand command = new TryConsumeCommand(tokensToConsume);
+        return gridProxy.execute(command, configuration);
     }
 
     @Override
@@ -50,7 +54,7 @@ public class GridBucket extends AbstractBucket {
         final long methodStartTimeNanos = isWaitingLimited? configuration.getTimeMeter().currentTimeNanos() : 0;
 
         while (true) {
-            long nanosToCloseDeficit = gridProxy.execute(consumeCommand);
+            long nanosToCloseDeficit = gridProxy.execute(consumeCommand, configuration);
             if (nanosToCloseDeficit == 0) {
                 return true;
             }
@@ -86,7 +90,8 @@ public class GridBucket extends AbstractBucket {
 
     @Override
     public BucketState getStateSnapshot() {
-        return gridProxy.execute(new CreateSnapshotCommand());
+        CreateSnapshotCommand command = new CreateSnapshotCommand();
+        return gridProxy.execute(command, configuration);
     }
 
     @Override

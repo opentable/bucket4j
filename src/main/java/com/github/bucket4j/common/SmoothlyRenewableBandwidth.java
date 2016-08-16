@@ -16,34 +16,21 @@
 
 package com.github.bucket4j.common;
 
-import java.util.Optional;
 
-public class SmoothlyRenewableBandwidthState implements BandwidthState {
+public class SmoothlyRenewableBandwidth implements Bandwidth {
 
     final int offset;
     final long periodNanos;
     final long maxCapacity;
 
-    public static Bandwidth bandwidth(long maxCapacity, long initialCapacity, long periodNanos) {
+    public static BandwidthDefinition bandwidth(long maxCapacity, long initialCapacity, long periodNanos) {
         Preconditions.checkPeriod(periodNanos);
         Preconditions.checkCapacities(maxCapacity, initialCapacity);
-        return new Bandwidth() {
-            @Override
-            public BandwidthState createInitialBandwidthState(StateInitializer stateInitializer, long currentTimeNanos) {
-                return new SmoothlyRenewableBandwidthState(stateInitializer, periodNanos, maxCapacity, initialCapacity);
-            }
-            @Override
-            public Optional<Long> getPeriodInNanos() {
-                return Optional.of(periodNanos);
-            }
-            @Override
-            public Optional<Long> getMaxCapacity() {
-                return Optional.of(maxCapacity);;
-            }
-        };
+        return (BandwidthDefinition) (stateInitializer, currentTimeNanos)
+                -> new SmoothlyRenewableBandwidth(stateInitializer, periodNanos, maxCapacity, initialCapacity);
     }
 
-    private SmoothlyRenewableBandwidthState(StateInitializer stateInitializer, long periodNanos, long maxCapacity, long initialCapacity) {
+    private SmoothlyRenewableBandwidth(StateInitializer stateInitializer, long periodNanos, long maxCapacity, long initialCapacity) {
         this.periodNanos = periodNanos;
         this.maxCapacity = maxCapacity;
         this.offset = stateInitializer.allocate(new long[] {initialCapacity});
@@ -56,7 +43,7 @@ public class SmoothlyRenewableBandwidthState implements BandwidthState {
         return Math.min(newSize, maxCapacity);
     }
 
-    public long delayNanosAfterWillBePossibleToConsume(SmoothlyRenewableBandwidthState bandwidth, double currentSize, long currentTimeNanos, double tokens) {
+    public long delayNanosAfterWillBePossibleToConsume(SmoothlyRenewableBandwidth bandwidth, double currentSize, long currentTimeNanos, double tokens) {
         if (tokens <= currentSize) {
             return 0;
         }
@@ -66,6 +53,23 @@ public class SmoothlyRenewableBandwidthState implements BandwidthState {
         double deficit = tokens - currentSize;
         double nanosToCloseDeficit = periodNanos * deficit / maxCapacity;
         return (long) nanosToCloseDeficit;
+    }
+
+    @Override
+    public void refill(BucketState state, long lastRefillTimeNanos, long currentTimeNanos) {
+        // TODO
+    }
+
+    @Override
+    public long delayNanosAfterWillBePossibleToConsume(BucketState state, long currentTimeNanos, double tokens) {
+        // TODO
+        return 0;
+    }
+
+    @Override
+    public long reserve(BucketState state, double tokens) {
+        // TODO
+        return 0;
     }
 
     @Override
