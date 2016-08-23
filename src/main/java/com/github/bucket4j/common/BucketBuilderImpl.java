@@ -16,6 +16,7 @@ import com.tangosol.net.NamedCache;
 import org.apache.ignite.IgniteCache;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -119,6 +120,32 @@ public class BucketBuilderImpl implements BucketBuilder {
                 "timeMeter=" + timeMeter +
                 ", bandwidths=" + limitedBandwidths +
                 '}';
+    }
+
+    private static void checkPeriod(long periodNanos) {
+        if (periodNanos <= 0) {
+            String pattern = "{0} nanoseconds is wrong value for period of bandwidth, because period should be positive";
+            String msg = MessageFormat.format(pattern, periodNanos);
+            throw new IllegalArgumentException(msg);
+        }
+    }
+
+    private static void checkCapacities(long maxCapacity, long initialCapacity) {
+        if (maxCapacity <= 0) {
+            String pattern = "{0} is wrong value for maxCapacity, because maxCapacity should be > 0";
+            String msg = MessageFormat.format(pattern, maxCapacity);
+            throw new IllegalArgumentException(msg);
+        }
+        if (initialCapacity < 0) {
+            String pattern = "{0} is wrong value for initial maxCapacity, because initial maxCapacity should be >= 0";
+            String msg = MessageFormat.format(pattern, initialCapacity);
+            throw new IllegalArgumentException(msg);
+        }
+        if (initialCapacity > maxCapacity) {
+            String pattern = "Initial maxCapacity {0} is greater than max maxCapacity {1}";
+            String msg = MessageFormat.format(pattern, initialCapacity, maxCapacity);
+            throw new IllegalArgumentException(msg);
+        }
     }
 
 }

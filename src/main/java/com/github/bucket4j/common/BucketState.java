@@ -43,10 +43,10 @@ public class BucketState implements Serializable {
     }
 
     public void setDouble(int offset, double value) {
-        state[0] = Double.doubleToRawLongBits(value);
+        state[offset] = Double.doubleToRawLongBits(value);
     }
 
-    public void setLong(int partialStateIndex, int offset, long value) {
+    public void setLong(int offset, long value) {
         state[offset] = value;
     }
 
@@ -143,6 +143,25 @@ public class BucketState implements Serializable {
 
     long getLastRefillTimeNanos() {
         return state[0];
+    }
+
+    private double getNewSize(double currentSize, long previousRefillNanos, long currentTimeNanos) {
+        long durationSinceLastRefillNanos = currentTimeNanos - previousRefillNanos;
+        double refill = maxCapacity * durationSinceLastRefillNanos / periodNanos;
+        double newSize = currentSize + refill;
+        return Math.min(newSize, maxCapacity);
+    }
+
+    private long delayNanosAfterWillBePossibleToConsume(SmoothlyRenewableBandwidth bandwidth, double currentSize, long currentTimeNanos, double tokens) {
+        if (tokens <= currentSize) {
+            return 0;
+        }
+        if (tokens > maxCapacity) {
+            return Long.MAX_VALUE;
+        }
+        double deficit = tokens - currentSize;
+        double nanosToCloseDeficit = periodNanos * deficit / maxCapacity;
+        return (long) nanosToCloseDeficit;
     }
 
     @Override
