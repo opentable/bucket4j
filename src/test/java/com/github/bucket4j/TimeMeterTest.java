@@ -17,12 +17,14 @@
 package com.github.bucket4j;
 
 import com.github.bucket4j.common.TimeMeter;
+import com.github.bucket4j.common.capacity.Capacity;
+import com.github.bucket4j.common.refill.Refill;
 import org.junit.Test;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 public class TimeMeterTest {
-
 
     @Test(expected = InterruptedException.class, timeout = 1000)
     public void sleepForMillisecondTimerShouldThrowExceptionWhenThreadInterrupted() throws InterruptedException {
@@ -32,6 +34,10 @@ public class TimeMeterTest {
 
     @Test(expected = InterruptedException.class, timeout = 1000)
     public void sleepForNanosecondTimerShouldThrowExceptionWhenThreadInterrupted() throws InterruptedException {
+        Bucket.builder()
+                .addLimit(1, Capacity.constant(100), Refill.smoothlyWithPeriod(Duration.ofSeconds(10)));
+        Bucket.builder().addLimit(1, Capacity.constant(100), Refill.fixedInterval(10, Duration.ofSeconds(1)));
+
         Thread.currentThread().interrupt();
         TimeMeter.SYSTEM_NANOTIME.parkNanos(TimeUnit.SECONDS.toNanos(10));
     }

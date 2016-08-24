@@ -17,6 +17,8 @@
 package com.github.bucket4j.common;
 
 import com.github.bucket4j.Bucket;
+import com.github.bucket4j.common.capacity.Capacity;
+import com.github.bucket4j.common.refill.Refill;
 import com.github.bucket4j.grid.GridProxy;
 import com.github.bucket4j.jdbc.JdbcAdapter;
 import com.github.bucket4j.statistic.BucketStatistic;
@@ -25,6 +27,7 @@ import com.tangosol.net.NamedCache;
 import org.apache.ignite.IgniteCache;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.function.Supplier;
 
 /**
@@ -45,7 +48,33 @@ public interface BucketBuilder {
      *
      * @return this builder instance
      */
-    BucketBuilder addLimit(BandwidthDefinition bandwidth);
+    BucketBuilder addLimitedBandwidth(Capacity capacity, Refill refill);
+
+    /**
+     * Adds limited bandwidth for all buckets which will be constructed by this builder instance.
+     * <p>
+     * You can specify as many limited bandwidth as needed.
+     *
+     * @param bandwidth
+     *
+     * @return this builder instance
+     */
+    default BucketBuilder addLimitedBandwidth(double maxCapacity, Duration period) {
+        return addLimitedBandwidth(Capacity.constant(maxCapacity), Refill.smoothlyWithPeriod(period));
+    }
+
+    /**
+     * Adds limited bandwidth for all buckets which will be constructed by this builder instance.
+     * <p>
+     * You can specify as many limited bandwidth as needed.
+     *
+     * @param bandwidth
+     *
+     * @return this builder instance
+     */
+    default BucketBuilder addLimitedBandwidth(double maxCapacity, Duration period, double initialCapacity) {
+        return addLimitedBandwidth(Capacity.constant(maxCapacity, initialCapacity), Refill.smoothlyWithPeriod(period));
+    }
 
     /**
      * Set guaranteed bandwidth for all buckets which will be constructed by this builder instance.
@@ -60,7 +89,41 @@ public interface BucketBuilder {
      * @return this builder instance
      * @throws IllegalApiUsageException if guarantee already set
      */
-    BucketBuilder withGuarantee(BandwidthDefinition bandwidth);
+    BucketBuilder withGuaranteedBandwidth(Capacity capacity, Refill refill);
+
+    /**
+     * Set guaranteed bandwidth for all buckets which will be constructed by this builder instance.
+     * <p>
+     * Guaranteed bandwidth provides following feature: if tokens can be consumed from guaranteed bandwidth,
+     * then bucket4j do not perform checking of any limited bandwidths.
+     * <p>
+     * Unlike limited bandwidths, you can use only one guaranteed bandwidth per single bucket.
+     *
+     * @param bandwidth
+     *
+     * @return this builder instance
+     * @throws IllegalApiUsageException if guarantee already set
+     */
+    default BucketBuilder withGuaranteedBandwidth(double maxCapacity, Duration period) {
+        return withGuaranteedBandwidth(Capacity.constant(maxCapacity), Refill.smoothlyWithPeriod(period));
+    }
+
+    /**
+     * Set guaranteed bandwidth for all buckets which will be constructed by this builder instance.
+     * <p>
+     * Guaranteed bandwidth provides following feature: if tokens can be consumed from guaranteed bandwidth,
+     * then bucket4j do not perform checking of any limited bandwidths.
+     * <p>
+     * Unlike limited bandwidths, you can use only one guaranteed bandwidth per single bucket.
+     *
+     * @param bandwidth
+     *
+     * @return this builder instance
+     * @throws IllegalApiUsageException if guarantee already set
+     */
+    default BucketBuilder withGuaranteedBandwidth(double maxCapacity, Duration period, double initialCapacity) {
+        return withGuaranteedBandwidth(Capacity.constant(maxCapacity, initialCapacity), Refill.smoothlyWithPeriod(period));
+    }
 
     /**
      * Configures the bucket static.

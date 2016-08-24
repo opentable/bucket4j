@@ -23,18 +23,16 @@ import java.util.Objects;
 
 public final class BucketConfiguration implements Serializable {
 
-    private final BandwidthDefinition guaranteedBandwidthDefinition;
-    private final List<BandwidthDefinition> limitedBandwidthsDefinitions;
     private final Bandwidth[] limitedBandwidths;
     private final Bandwidth guaranteedBandwidth;
     private final TimeMeter timeMeter;
+    private final int stateSize;
 
-    BucketConfiguration(List<BandwidthDefinition> limitedBandwidthsDefinitions, BandwidthDefinition guaranteedBandwidthDefinition, Bandwidth[] limitedBandwidths, Bandwidth guaranteedBandwidth, TimeMeter timeMeter) {
-        this.timeMeter = Objects.requireNonNull(timeMeter);
-        this.limitedBandwidthsDefinitions = limitedBandwidthsDefinitions;
-        this.guaranteedBandwidthDefinition = guaranteedBandwidthDefinition;
-        this.limitedBandwidths = Objects.requireNonNull(limitedBandwidths);
+    BucketConfiguration(Bandwidth[] limitedBandwidths, Bandwidth guaranteedBandwidth, TimeMeter timeMeter, int stateSize) {
+        this.timeMeter = timeMeter;
+        this.limitedBandwidths = limitedBandwidths;
         this.guaranteedBandwidth = guaranteedBandwidth;
+        this.stateSize = stateSize;
     }
 
     public TimeMeter getTimeMeter() {
@@ -49,12 +47,8 @@ public final class BucketConfiguration implements Serializable {
         return guaranteedBandwidth;
     }
 
-    public BandwidthDefinition getGuaranteedBandwidthDefinition() {
-        return guaranteedBandwidthDefinition;
-    }
-
-    public List<BandwidthDefinition> getLimitedBandwidthsDefinitions() {
-        return limitedBandwidthsDefinitions;
+    public int getStateSize() {
+        return stateSize;
     }
 
     @Override
@@ -63,6 +57,7 @@ public final class BucketConfiguration implements Serializable {
                 "limitedBandwidths=" + Arrays.toString(limitedBandwidths) +
                 ", guaranteedBandwidth=" + guaranteedBandwidth +
                 ", timeMeter=" + timeMeter +
+                ", stateSize=" + stateSize +
                 '}';
     }
 

@@ -1,6 +1,8 @@
 package com.github.bucket4j.common;
 
 import com.github.bucket4j.Bucket;
+import com.github.bucket4j.common.capacity.Capacity;
+import com.github.bucket4j.common.refill.Refill;
 import com.github.bucket4j.grid.GridBucket;
 import com.github.bucket4j.grid.GridProxy;
 import com.github.bucket4j.grid.coherence.CoherenceProxy;
@@ -27,18 +29,22 @@ public class BucketBuilderImpl implements BucketBuilder {
     private BucketStatistic statistic = DummyBucketStatistic.INSTANCE;
 
     private TimeMeter timeMeter = TimeMeter.SYSTEM_MILLISECONDS;
-    private List<BandwidthDefinition> limitedBandwidths = new ArrayList<>(1);
-    private BandwidthDefinition guaranteedBandwidth;
+    private List<Capacity> limitedBandwidthsCapacities = new ArrayList<>(1);
+    private Capacity guaranteedBandwidthCapacity;
+    private List<Refill> limitedBandwidthsRefills = new ArrayList<>(1);
+    private Refill guaranteedBandwidthRefill;
 
     @Override
-    public BucketBuilder addLimit(BandwidthDefinition bandwidth) {
-        limitedBandwidths.add(bandwidth);
+    public BucketBuilder addLimitedBandwidth(Capacity capacity, Refill refill) {
+        this.limitedBandwidthsCapacities.add(Objects.requireNonNull(capacity));
+        this.limitedBandwidthsRefills.add(Objects.requireNonNull(refill));
         return this;
     }
 
     @Override
-    public BucketBuilder withGuarantee(BandwidthDefinition bandwidth) {
-        this.guaranteedBandwidth = bandwidth;
+    public BucketBuilder withGuaranteedBandwidth(Capacity capacity, Refill refill) {
+        this.guaranteedBandwidthCapacity = Objects.requireNonNull(capacity);
+        this.guaranteedBandwidthRefill = Objects.requireNonNull(refill);
         return this;
     }
 
@@ -65,7 +71,6 @@ public class BucketBuilderImpl implements BucketBuilder {
         this.timeMeter = Objects.requireNonNull(customTimeMeter);
         return this;
     }
-
 
     @Override
     public Bucket build() {
@@ -114,38 +119,8 @@ public class BucketBuilderImpl implements BucketBuilder {
         return BucketState.createInitialState(limitedBandwidths, guaranteedBandwidth, timeMeter);
     }
 
-    @Override
-    public String toString() {
-        return "BucketBuilder{" +
-                "timeMeter=" + timeMeter +
-                ", bandwidths=" + limitedBandwidths +
-                '}';
-    }
-
-    private static void checkPeriod(long periodNanos) {
-        if (periodNanos <= 0) {
-            String pattern = "{0} nanoseconds is wrong value for period of bandwidth, because period should be positive";
-            String msg = MessageFormat.format(pattern, periodNanos);
-            throw new IllegalArgumentException(msg);
-        }
-    }
-
     private static void checkCapacities(long maxCapacity, long initialCapacity) {
-        if (maxCapacity <= 0) {
-            String pattern = "{0} is wrong value for maxCapacity, because maxCapacity should be > 0";
-            String msg = MessageFormat.format(pattern, maxCapacity);
-            throw new IllegalArgumentException(msg);
-        }
-        if (initialCapacity < 0) {
-            String pattern = "{0} is wrong value for initial maxCapacity, because initial maxCapacity should be >= 0";
-            String msg = MessageFormat.format(pattern, initialCapacity);
-            throw new IllegalArgumentException(msg);
-        }
-        if (initialCapacity > maxCapacity) {
-            String pattern = "Initial maxCapacity {0} is greater than max maxCapacity {1}";
-            String msg = MessageFormat.format(pattern, initialCapacity, maxCapacity);
-            throw new IllegalArgumentException(msg);
-        }
+
     }
 
 }
