@@ -44,20 +44,14 @@
         <url>http://github.com/vladimir-bukhtoyarov/bucket4j</url>
         <connection>scm:git:git@github.com:vladimir-bukhtoyarov/bucket4j</connection>
         <developerConnection>scm:git:git@github.com:vladimir-bukhtoyarov/bucket4j.git</developerConnection>
-        <tag>bucket4j-1.0.1</tag>
     </scm>
 
     <developers>
         <developer>
             <id>vladimir-bukhtoyarov</id>
             <name>Vladimir Bukhtoyarov</name>
-            <email>jsecoder@gmail.com</email>
+            <email>jsecoder@mail.ru</email>
             <url>https://github.com/vladimir-bukhtoyarov</url>
-            <organization>Dino systems</organization>
-            <organizationUrl>http://www.dins.ru/</organizationUrl>
-            <roles>
-                <role>Senior software engineer</role>
-            </roles>
         </developer>
     </developers>
 
